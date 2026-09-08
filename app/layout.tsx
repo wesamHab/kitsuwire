@@ -5,6 +5,7 @@ import "./hero-polish.css";
 import "./editorial.css";
 import "./theme.css";
 import "./reference.css";
+import "./article-pro.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://kitsuwire.com"),
