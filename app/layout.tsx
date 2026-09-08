@@ -3,6 +3,7 @@ import "./globals.css";
 import "./brand.css";
 import "./hero-polish.css";
 import "./editorial.css";
+import "./theme.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://kitsuwire.com"),
@@ -25,9 +26,25 @@ export const metadata: Metadata = {
   },
 };
 
+const themeScript = `
+(function(){
+  try {
+    var saved = localStorage.getItem('kitsuwire-theme');
+    var theme = saved === 'light' || saved === 'dark'
+      ? saved
+      : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.dataset.theme = theme;
+  } catch (e) {
+    document.documentElement.dataset.theme = 'light';
+  }
+})();`;
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body>{children}</body>
     </html>
   );
