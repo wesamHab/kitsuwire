@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, CheckCircle2, ExternalLink } from "lucide-react";
-import { getAllArticles, getArticle } from "@/lib/articles";
+import { getAllArticles, getArticle, getRelatedArticles } from "@/lib/articles";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { AdSlot } from "@/components/AdSlot";
@@ -21,11 +21,12 @@ export async function generateMetadata({params}:{params:Promise<{slug:string}>})
 
 export default async function ArticlePage({params}:{params:Promise<{slug:string}>}){
  const{slug}=await params;const article=getArticle(slug);if(!article)notFound();
- const related=getAllArticles().filter(x=>x.category===article.category&&x.slug!==article.slug).slice(0,3);const author=article.author??"KitsuWire Editorial";const url=`${SITE}/article/${article.slug}`;
+ const related=getRelatedArticles(article,4);const author=article.author??"KitsuWire Editorial";const url=`${SITE}/article/${article.slug}`;
  const articleSchema={"@context":"https://schema.org","@type":"Article",headline:article.title,description:article.seoDescription??article.excerpt,datePublished:article.publishedAt,dateModified:article.updatedAt??article.publishedAt,author:{"@type":"Organization",name:author},publisher:{"@type":"Organization",name:"KitsuWire",url:SITE},mainEntityOfPage:{"@type":"WebPage","@id":url},keywords:article.tags?.join(", "),articleSection:article.categoryLabel};
+ const breadcrumbSchema={"@context":"https://schema.org","@type":"BreadcrumbList",itemListElement:[{"@type":"ListItem",position:1,name:"Home",item:SITE},{"@type":"ListItem",position:2,name:article.categoryLabel,item:`${SITE}/category/${article.category}`},{"@type":"ListItem",position:3,name:article.title,item:url}]};
  const faqSchema=article.faq?.length?{"@context":"https://schema.org","@type":"FAQPage",mainEntity:article.faq.map(item=>({"@type":"Question",name:item.question,acceptedAnswer:{"@type":"Answer",text:item.answer}}))}:null;
  return <main><ReadingProgress/><SiteHeader/><article className="article-page shell">
-  <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(articleSchema)}}/>{faqSchema?<script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(faqSchema)}}/>:null}
+  <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(articleSchema)}}/><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(breadcrumbSchema)}}/>{faqSchema?<script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(faqSchema)}}/>:null}
   <Link className="back-link" href={`/category/${article.category}`}><ArrowLeft size={15}/> {article.categoryLabel}</Link>
   <header className="article-head"><span className="category">{article.categoryLabel} · KITSUWIRE GUIDE</span><h1>{article.title}</h1><p>{article.excerpt}</p><div className="article-byline"><span>By {author}</span><span>{article.readingTime} read</span><span>Published {new Date(article.publishedAt).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}</span>{article.updatedAt&&<span>Last updated {new Date(article.updatedAt).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}</span>}</div>{article.tags?.length?<div className="article-tags">{article.tags.map(tag=><span key={tag}>{tag}</span>)}</div>:null}</header>
   <div className="article-hero-art"><ArticleArtwork article={article}/></div>
@@ -34,6 +35,7 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
    <div className="article-content">
     {article.keyTakeaways?.length?<section className="key-takeaways"><span className="kicker">KEY TAKEAWAYS</span><ul>{article.keyTakeaways.map(item=><li key={item}><CheckCircle2 size={18}/><span>{item}</span></li>)}</ul></section>:null}
     {article.body.map((paragraph,index)=><p key={`intro-${index}`}>{paragraph}</p>)}
+    {related.length>0?<section className="topic-links"><span className="kicker">RELATED CONCEPTS</span><div>{related.slice(0,3).map(item=><Link key={item.slug} href={`/article/${item.slug}`}><span>{item.categoryLabel}</span><strong>{item.title}</strong><ArrowRight size={15}/></Link>)}</div></section>:null}
     {article.body.length>0&&<AdSlot position="in-article"/>}
     {article.sections?.map((section,index)=><section className="article-section" id={sectionId(section.heading)} key={section.heading}><h2>{section.heading}</h2>{section.paragraphs.map((paragraph,i)=><p key={i}>{paragraph}</p>)}{section.bullets?.length?<ul>{section.bullets.map(item=><li key={item}>{item}</li>)}</ul>:null}{index===2?<AdSlot position="in-article"/>:null}</section>)}
     <div className="article-callout"><span>KITSUWIRE TAKE</span><h2>Understand the system behind the headline.</h2><p>The useful question is not only what a technology or market concept is, but what problem it solves, which incentives shape it, what trade-offs it introduces and when those trade-offs matter.</p></div>
