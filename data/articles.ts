@@ -1,108 +1,43 @@
 export type Category = "ai" | "technology" | "software" | "markets";
+export type Article = { slug:string; category:Category; categoryLabel:string; title:string; excerpt:string; publishedAt:string; readingTime:string; tone:"violet"|"blue"|"orange"|"green"; featured?:boolean; body:string[] };
 
-export type Article = {
-  slug: string;
-  category: Category;
-  categoryLabel: string;
-  title: string;
-  excerpt: string;
-  publishedAt: string;
-  readingTime: string;
-  tone: "violet" | "blue" | "orange" | "green";
-  featured?: boolean;
-  body: string[];
-};
+const a = (slug:string, category:Category, title:string, excerpt:string, body:string[], publishedAt="2026-09-08"):Article => ({ slug, category, categoryLabel:{ai:"AI",technology:"Technology",software:"Software",markets:"Markets"}[category], title, excerpt, publishedAt, readingTime:`${Math.max(5,Math.min(12,body.length*2+3))} min`, tone:{ai:"violet",technology:"blue",software:"orange",markets:"green"}[category] as Article["tone"], body });
 
 export const articles: Article[] = [
-  {
-    slug: "ai-is-no-longer-just-a-software-story",
-    category: "ai",
-    categoryLabel: "AI",
-    title: "AI is no longer just a software story.",
-    excerpt: "The biggest technology shift of the decade is colliding with energy, chips, geopolitics and capital markets.",
-    publishedAt: "2026-09-08",
-    readingTime: "12 min",
-    tone: "violet",
-    featured: true,
-    body: [
-      "Artificial intelligence is moving from the software layer into the physical economy. Training and running advanced models now depends on data centers, electricity, chips, cooling systems and enormous capital budgets.",
-      "That changes the way the AI story should be understood. The winners may not only be the companies building the smartest models, but also the companies controlling scarce compute, distribution, infrastructure and energy access.",
-      "For investors, builders and operators, the important question is no longer simply which model is best. It is which ecosystem can scale reliably, cheaply and globally."
-    ]
-  },
-  {
-    slug: "the-next-ai-race-is-moving-beyond-bigger-models",
-    category: "ai",
-    categoryLabel: "AI",
-    title: "The next AI race is moving beyond bigger models",
-    excerpt: "Why agents, infrastructure and distribution are becoming the new battleground.",
-    publishedAt: "2026-09-07",
-    readingTime: "6 min",
-    tone: "violet",
-    body: [
-      "Model capability still matters, but the competition is broadening. Companies are racing to make AI useful inside real workflows rather than simply impressive in benchmarks.",
-      "Agents, tool use, context, memory and enterprise integration are becoming increasingly important parts of the product experience.",
-      "Distribution may prove just as important as raw intelligence. The companies already embedded in daily workflows have a powerful advantage when AI becomes a default layer of software."
-    ]
-  },
-  {
-    slug: "the-invisible-infrastructure-powering-the-new-internet",
-    category: "technology",
-    categoryLabel: "Technology",
-    title: "The invisible infrastructure powering the new internet",
-    excerpt: "Inside the data centers, chips and networks behind the next computing cycle.",
-    publishedAt: "2026-09-06",
-    readingTime: "8 min",
-    tone: "blue",
-    body: [
-      "The modern internet increasingly depends on infrastructure most users never see. Data centers, accelerators, high-speed interconnects and cooling systems now sit behind many of the fastest-growing digital products.",
-      "As demand rises, infrastructure becomes a strategic constraint rather than a background commodity.",
-      "The next wave of technology may therefore be shaped as much by physical capacity as by software innovation."
-    ]
-  },
-  {
-    slug: "software-is-changing-from-tools-into-teammates",
-    category: "software",
-    categoryLabel: "Software",
-    title: "Software is changing from tools into teammates",
-    excerpt: "A practical look at how AI-native products are reshaping everyday workflows.",
-    publishedAt: "2026-09-05",
-    readingTime: "5 min",
-    tone: "orange",
-    body: [
-      "Traditional software waits for a user to tell it exactly what to do. AI-native software increasingly interprets goals, suggests actions and executes multi-step tasks.",
-      "This changes product design. Interfaces become more conversational, software becomes more proactive and workflows become less dependent on manual navigation.",
-      "The challenge is trust: users need systems that are not only capable, but predictable, transparent and controllable."
-    ]
-  },
-  {
-    slug: "why-investors-are-watching-compute-like-a-commodity",
-    category: "markets",
-    categoryLabel: "Markets",
-    title: "Why investors are watching compute like a commodity",
-    excerpt: "AI demand is changing how markets think about power, chips and capacity.",
-    publishedAt: "2026-09-04",
-    readingTime: "7 min",
-    tone: "green",
-    body: [
-      "Compute has become one of the most closely watched inputs in the AI economy. Access to powerful accelerators can affect growth, product launches and margins.",
-      "That has made infrastructure spending a central market signal. Investors now pay close attention to capital expenditure, data-center expansion and power availability.",
-      "The result is a tighter connection between technology markets and traditionally industrial sectors such as utilities, construction and energy."
-    ]
-  }
+  {...a("ai-is-no-longer-just-a-software-story","ai","AI is no longer just a software story.","The biggest technology shift of the decade is colliding with energy, chips, geopolitics and capital markets.",["Artificial intelligence is moving from the software layer into the physical economy. Advanced models depend on data centers, electricity, chips, cooling systems and enormous capital budgets.","That changes how the AI story should be understood. Winners may include not only model builders, but companies controlling scarce compute, infrastructure, distribution and energy access.","The important question is no longer simply which model is best. It is which ecosystem can scale reliably, economically and globally."]),featured:true},
+  a("what-is-generative-ai","ai","What is Generative AI? A clear guide","From large language models to image generators: what generative AI actually does and why it matters.",["Generative AI describes systems that create new content such as text, images, audio, video or code after learning patterns from large collections of data.","Large language models predict useful sequences of tokens rather than retrieving a fixed answer from a database. This allows one model to summarize, translate, reason over text and generate drafts.","The technology is powerful but imperfect. Models can produce incorrect information, so important outputs still require verification and appropriate human oversight."]),
+  a("what-are-ai-agents","ai","What are AI agents?","Why AI is moving from answering questions to completing multi-step tasks.",["An AI agent is a system designed to pursue a goal through multiple steps rather than only return a single response.","Agents can combine a model with tools such as search, databases, code execution and business applications. The model decides which action is useful and interprets the result.","Reliable agents need permissions, limits, observability and verification. Autonomy becomes useful only when organizations can understand and control what the system does."]),
+  a("how-large-language-models-work","ai","How do large language models work?","A practical explanation of tokens, training, inference and context windows.",["Large language models learn statistical relationships between pieces of text called tokens. During training they repeatedly learn to predict missing or next tokens across enormous datasets.","Training produces model parameters that encode useful patterns. During inference, a prompt is processed and the model generates a response token by token.","Context windows determine how much information can be considered at once. More context can help, but good retrieval and prompt design remain important."]),
+  a("ai-infrastructure-explained","ai","The infrastructure behind modern AI","GPUs, data centers, networking and power are becoming part of the AI product stack.",["AI services may feel like pure software, but their physical infrastructure is substantial. Accelerators perform parallel calculations while high-speed networks connect large clusters.","Data centers must supply power and remove heat continuously. At large scale, electricity, cooling and grid connections can become strategic constraints.","This is why the AI economy increasingly connects software companies with semiconductor manufacturers, utilities and infrastructure providers."]),
+  a("the-next-ai-race-is-moving-beyond-bigger-models","ai","The next AI race is moving beyond bigger models","Agents, infrastructure and distribution are becoming the new battleground.",["Model capability still matters, but competition is broadening toward useful real-world workflows.","Agents, tool use, context and enterprise integration increasingly shape the product experience.","Distribution may prove as important as raw intelligence because products already embedded in daily workflows have a natural route to users."]),
+
+  a("what-is-kubernetes","technology","What is Kubernetes? A beginner-friendly guide","Containers are easy to start. Kubernetes is about operating them reliably at scale.",["Kubernetes is an open-source platform for orchestrating containerized applications. Instead of manually starting containers on individual servers, teams describe the state they want and Kubernetes continuously works toward it.","A Pod is the smallest deployable unit. Deployments manage replicated application Pods, Services provide stable networking, and ConfigMaps and Secrets separate configuration from application images.","Kubernetes becomes valuable when applications need scaling, self-healing, rolling updates and consistent deployment across clusters. Its flexibility also creates complexity, so smaller applications do not automatically need it."]),
+  a("what-is-docker","technology","What is Docker and why do developers use it?","A practical introduction to images, containers and portable application environments.",["Docker packages an application together with the libraries and runtime it needs into an image. A running instance of that image is called a container.","Containers share the host operating system kernel, making them generally lighter than full virtual machines. An image can move from a developer laptop into CI and production with a much more consistent environment.","Docker does not remove operational complexity, but it creates a standardized unit for building, testing and deploying modern applications."]),
+  a("containers-vs-virtual-machines","technology","Containers vs virtual machines","They solve related isolation problems, but at very different layers of the stack.",["A virtual machine emulates a complete computer environment and normally runs its own operating system kernel. Containers isolate processes while sharing the host kernel.","VMs offer strong boundaries and broad operating-system flexibility. Containers usually start faster and use fewer resources, making them attractive for application packaging and microservices.","Modern platforms commonly use both: virtual machines provide infrastructure boundaries while containers package workloads inside them."]),
+  a("what-is-cloud-computing","technology","What is cloud computing?","IaaS, PaaS and serverless explained without the marketing language.",["Cloud computing provides computing resources on demand rather than requiring every organization to own and operate physical hardware.","Infrastructure services expose virtual machines, networks and storage. Platform services abstract more operations, while serverless products let teams focus primarily on functions or applications.","The cloud can increase speed and flexibility, but good architecture still requires cost control, security, resilience and an understanding of provider dependencies."]),
+  a("what-is-a-data-center","technology","What actually happens inside a data center?","The physical systems behind cloud services, streaming, AI and the modern internet.",["A data center is a facility designed to run computing and networking equipment continuously. Racks contain servers, storage systems and switches connected through high-capacity networks.","Reliable facilities need redundant electricity, backup power, cooling, fire protection, physical security and multiple network paths.","AI is making data-center design especially important because dense accelerator clusters can require extraordinary amounts of power, cooling and network bandwidth."]),
+  a("how-the-internet-actually-moves-data","technology","How does the internet actually move data?","From DNS to routers and undersea cables, a simple journey through the network.",["When you open a website, DNS first helps translate its domain name into an address that computers can route toward.","Packets then travel through routers and networks operated by different organizations. Fiber-optic links, internet exchanges and undersea cables connect regions and continents.","Protocols coordinate this enormous decentralized system so applications can communicate without needing to know every physical path underneath them."]),
+
+  a("what-is-an-api","software","What is an API?","The contract that lets modern applications communicate with each other.",["An application programming interface defines how one piece of software can request data or actions from another.","Web APIs commonly expose endpoints over HTTP. A client sends a request with parameters or data and the server returns a structured response, often JSON.","Clear APIs let teams separate systems and integrate external services, but they also require authentication, versioning, rate limits and careful security design."]),
+  a("what-is-git","software","What is Git and why is it everywhere?","The version-control system behind modern collaborative software development.",["Git records changes to files as a history of commits. Developers can create branches, experiment independently and later merge changes together.","Distributed repositories mean developers usually have a complete local history rather than relying on one central working copy.","Platforms such as GitHub build collaboration, reviews and automation around Git, but Git itself is the underlying version-control technology."]),
+  a("what-is-devops","software","What is DevOps really?","It is more than CI/CD: the operating model connecting software delivery and production.",["DevOps describes practices that reduce the gap between building software and operating it. Teams automate repetitive delivery work and create fast feedback from production.","Continuous integration, infrastructure as code, observability and automated deployment are common technical practices.","The deeper goal is organizational: ownership, feedback and reliability should flow across the software lifecycle instead of being separated into isolated handoffs."]),
+  a("what-is-terraform","software","What is Terraform? Infrastructure as Code explained","Why teams define servers, networks and cloud resources in code.",["Terraform lets teams describe infrastructure using declarative configuration files. Providers translate that configuration into operations against cloud platforms and other services.","Terraform compares the desired configuration with known infrastructure and creates an execution plan before applying changes.","Infrastructure as code makes environments more reproducible and reviewable, but teams must carefully manage state, secrets, modules and permissions."]),
+  a("ci-cd-explained","software","CI/CD explained simply","How software moves from a code commit to a tested production release.",["Continuous integration automatically validates changes as developers merge code. Typical pipelines compile applications and run tests, linters and security checks.","Continuous delivery prepares validated changes so they can be released reliably. Continuous deployment goes further by automatically releasing changes that pass required controls.","Good pipelines reduce manual mistakes and shorten feedback loops, but speed should be paired with observability and safe rollback mechanisms."]),
+  a("microservices-vs-monolith","software","Microservices vs monolith: which is better?","Why architecture should follow the problem rather than the trend.",["A monolithic application keeps many capabilities in one deployable system. This can be simple to develop, test and operate, particularly for smaller teams.","Microservices split capabilities into independently deployable services. They can enable organizational autonomy and targeted scaling, but introduce networking, data consistency and operational complexity.","There is no universal winner. Architecture should reflect team size, product boundaries, scaling needs and operational maturity."]),
+
+  a("what-is-an-etf","markets","What is an ETF?","A simple explanation of one of the most widely used investment structures.",["An exchange-traded fund is an investment fund whose shares trade on an exchange. Many ETFs hold a basket of assets designed to track an index or market segment.","Diversification can reduce dependence on a single company, while fees and tracking differences still matter over time.","An ETF is a structure, not a guarantee of safety. Its risk ultimately depends on the assets it owns and the strategy it follows."]),
+  a("why-interest-rates-matter","markets","Why do interest rates matter so much?","The price of money influences mortgages, companies, currencies and asset valuations.",["Interest rates affect the cost of borrowing and the return available from relatively low-risk assets. Changes therefore spread through households, businesses and financial markets.","Higher rates can slow borrowing and investment while making future corporate earnings less valuable in present-value calculations.","Markets often react not only to current rates but to expectations about inflation, growth and what central banks may do next."]),
+  a("what-is-inflation","markets","What is inflation and why does it happen?","A clear guide to rising prices, purchasing power and central-bank policy.",["Inflation describes a broad rise in the prices of goods and services over time, reducing what a unit of currency can purchase.","It can emerge from strong demand, constrained supply, rising input costs or changes in expectations and monetary conditions.","Central banks often use interest rates to influence demand and inflation, but policy works with delays and can involve difficult trade-offs for growth and employment."]),
+  a("why-gold-matters","markets","Why does gold still matter?","An ancient asset continues to play a role in reserves, portfolios and periods of uncertainty.",["Gold produces no corporate earnings or interest by itself, yet investors and central banks continue to hold it as a scarce globally recognized asset.","Demand can be influenced by real interest rates, currencies, geopolitical risk, central-bank purchases and investor sentiment.","Gold can diversify some portfolios, but its price can still be volatile and its role should not be confused with a guaranteed return."]),
+  a("how-stock-markets-work","markets","How does the stock market work?","What actually happens when you buy a share of a public company.",["A share represents an ownership interest in a company. Public markets allow those shares to be traded between buyers and sellers through exchanges and other trading venues.","Prices move as participants continuously reassess expected profits, risks, interest rates and the price they are willing to pay.","Short-term market moves can be noisy. Over longer periods, business performance, cash flows and valuation become central to investment outcomes."]),
+  a("why-investors-are-watching-compute-like-a-commodity","markets","Why investors are watching compute like a commodity","AI demand is changing how markets think about power, chips and capacity.",["Compute has become a closely watched input in the AI economy. Access to accelerators can affect growth, product launches and margins.","Infrastructure spending is therefore a market signal, with investors tracking capital expenditure, data-center expansion and power availability.","The result is a tighter connection between technology markets and industrial sectors such as utilities, construction and energy."])
 ];
 
-export const categoryMeta: Record<Category, { title: string; description: string }> = {
-  ai: { title: "Artificial Intelligence", description: "Models, agents, companies and the infrastructure powering the AI era." },
-  technology: { title: "Technology", description: "The products, platforms and breakthroughs changing how the world works." },
-  software: { title: "Software", description: "Developer tools, cloud, open source and the new software stack." },
-  markets: { title: "Markets", description: "The money, businesses and economic forces behind technological change." }
+export const categoryMeta: Record<Category,{title:string;description:string}> = {
+ ai:{title:"Artificial Intelligence",description:"Models, agents, companies and the infrastructure powering the AI era."},
+ technology:{title:"Technology",description:"Cloud, containers, infrastructure and the systems changing how the world works."},
+ software:{title:"Software",description:"Developer tools, DevOps, open source and the modern software stack."},
+ markets:{title:"Markets",description:"Investing, money and the economic forces behind technological change."}
 };
-
-export function getArticle(slug: string) {
-  return articles.find((article) => article.slug === slug);
-}
-
-export function getArticlesByCategory(category: Category) {
-  return articles.filter((article) => article.category === category);
-}
+export function getArticle(slug:string){return articles.find(x=>x.slug===slug)}
+export function getArticlesByCategory(category:Category){return articles.filter(x=>x.category===category)}
