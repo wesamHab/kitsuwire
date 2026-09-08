@@ -4,6 +4,7 @@ import "./brand.css";
 import "./hero-polish.css";
 import "./editorial.css";
 import "./theme.css";
+import "./reference.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://kitsuwire.com"),
@@ -42,9 +43,7 @@ const themeScript = `
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
+      <head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
       <body>{children}</body>
     </html>
   );
