@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Sparkles, Cpu, Code2, ChartNoAxesCombined, Mail } from "lucide-react";
+import { ArrowRight, Sparkles, Cpu, Code2, ChartNoAxesCombined, Mail, Globe2, BookOpenText, Layers3 } from "lucide-react";
 import { getAllArticles, getFeaturedArticle } from "@/lib/articles";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -12,7 +12,7 @@ export default function Home(){
  const latest=articles.filter(a=>a.slug!==featured.slug).slice(0,12);
  const wire=latest.slice(0,4);
  return <main><SiteHeader/>
-  <section className="hero shell"><div className="hero-copy-wrap"><div className="eyebrow"><span className="live-dot"/> THE SIGNAL BEHIND WHAT&apos;S NEXT</div><h1>Understand the future<br/>before it becomes <em>obvious.</em></h1><p className="hero-copy">KitsuWire cuts through the noise around AI, technology, software and markets — turning fast-moving change into clear, useful insight.</p><div className="hero-actions"><Link className="primary" href="#latest">Explore the latest <ArrowRight size={18}/></Link><Link className="text-link" href="/about">What is KitsuWire?</Link></div></div><HeroSignal/></section>
+  <section className="hero shell"><div className="hero-copy-wrap"><div className="eyebrow"><span className="live-dot"/> TECH NEWS · CLEARER</div><h1>Understand what<br/><em>moves</em> the world.</h1><p className="hero-copy">Clear, useful intelligence on AI, technology, software and markets — built for people who want to understand what is changing and why it matters.</p><div className="hero-actions"><Link className="primary" href="#latest">Explore latest articles <ArrowRight size={18}/></Link><Link className="text-link" href="/about">About KitsuWire</Link></div><div className="hero-proof"><span><BookOpenText size={17}/><b>{articles.length}+</b><small>Articles</small></span><span><Layers3 size={17}/><b>4</b><small>Desks</small></span><span><Globe2 size={17}/><b>Global</b><small>Perspective</small></span></div></div><HeroSignal/></section>
 
   <section className="wire-section shell" aria-label="Latest from KitsuWire"><div className="wire-heading"><div><span className="kicker">ON THE WIRE</span><h2>Worth knowing now.</h2></div><Link href="#latest">View all <ArrowRight size={15}/></Link></div><div className="wire-grid">{wire.map((item,index)=><Link className="wire-card" href={`/article/${item.slug}`} key={item.slug}><div className="wire-card-top"><span>{String(index+1).padStart(2,"0")}</span><span>{item.categoryLabel}</span></div><h3>{item.title}</h3><div className="wire-card-foot"><span>{item.readingTime} read</span><ArrowRight size={16}/></div></Link>)}</div></section>
 
