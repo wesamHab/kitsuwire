@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./brand.css";
 import "./hero-polish.css";
+import "./editorial.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://kitsuwire.com"),
