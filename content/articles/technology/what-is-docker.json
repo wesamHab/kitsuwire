@@ -1,1 +1,109 @@
-{"slug":"what-is-docker","category":"technology","categoryLabel":"Technology","title":"What is Docker and why do developers use it?","excerpt":"A practical introduction to images, containers and portable application environments.","publishedAt":"2026-09-08","readingTime":"9 min","tone":"blue","tags":["Docker","containers"],"body":["Docker packages an application together with the libraries and runtime it needs into an image. A running instance of that image is called a container.","Containers share the host operating system kernel, making them generally lighter than full virtual machines. An image can move from a developer laptop into CI and production with a much more consistent environment.","Docker does not remove operational complexity, but it creates a standardized unit for building, testing and deploying modern applications."]}
+{
+  "slug": "what-is-docker",
+  "category": "technology",
+  "categoryLabel": "Technology",
+  "title": "What is Docker? A complete guide to images, containers and modern app delivery",
+  "seoTitle": "What Is Docker? Complete Beginner Guide to Containers",
+  "seoDescription": "Learn what Docker is, how images and containers work, how Docker differs from virtual machines, and when developers should use it.",
+  "excerpt": "Docker packages applications into portable container images so they can run more consistently from development through production.",
+  "publishedAt": "2026-09-08",
+  "updatedAt": "2026-09-08",
+  "readingTime": "13 min",
+  "tone": "blue",
+  "author": "KitsuWire Editorial",
+  "tags": ["Docker", "containers", "DevOps", "software delivery", "cloud"],
+  "keyTakeaways": [
+    "Docker packages an application and its dependencies into an image; a running instance of that image is a container.",
+    "Containers share the host operating-system kernel, which generally makes them lighter than full virtual machines.",
+    "Docker helps standardize development, testing and deployment environments, but it does not solve every production operations problem by itself.",
+    "Docker Compose is useful for multi-container local environments, while larger production systems often add an orchestrator or managed container platform."
+  ],
+  "body": [
+    "One of the oldest problems in software delivery is that an application works in one environment and fails in another. Different runtime versions, libraries, system packages and configuration can all change how software behaves.",
+    "Docker became popular because it gives teams a standard way to package an application together with the environment it expects. The result is a portable container image that can be tested, stored and run in many different places with much greater consistency."
+  ],
+  "sections": [
+    {
+      "heading": "What Docker actually does",
+      "paragraphs": [
+        "Docker provides tools for building, distributing and running containers. Developers define how an application should be packaged, usually in a Dockerfile. Docker turns those instructions into an image containing the application code, runtime, system libraries and other required files.",
+        "When that image is started, Docker creates a container. The container is an isolated process environment with its own filesystem view, networking configuration and resource boundaries. Because the application environment travels with the image, teams can reduce many of the differences between a developer laptop, a CI runner and a production host."
+      ]
+    },
+    {
+      "heading": "Images versus containers",
+      "paragraphs": [
+        "An image is a packaged, read-only template. It contains the files and metadata required to start an application. Images are commonly stored in registries so they can be shared between developers, CI systems and deployment platforms.",
+        "A container is a running instance created from an image. Multiple containers can be started from the same image, each with its own runtime state. This separation is useful because the same tested image can move through different environments without rebuilding the application each time.",
+        "Images are built in layers. If only one layer changes, Docker can often reuse unchanged layers from a cache. Good Dockerfiles take advantage of this behavior to make builds faster and images smaller."
+      ]
+    },
+    {
+      "heading": "How Docker differs from a virtual machine",
+      "paragraphs": [
+        "A traditional virtual machine includes a complete guest operating system and its own kernel. Containers normally share the host kernel while isolating application processes from each other. This usually makes containers faster to start and less resource-intensive than full virtual machines.",
+        "That does not make virtual machines obsolete. VMs provide strong infrastructure isolation and can run different operating systems on the same physical host. In many real environments, containers actually run inside virtual machines: the VM provides the infrastructure boundary while containers package and isolate applications inside it."
+      ],
+      "bullets": [
+        "Virtual machine: includes a guest operating system and kernel.",
+        "Container: isolates processes while normally sharing the host kernel.",
+        "VMs and containers are complementary technologies rather than simple replacements for one another."
+      ]
+    },
+    {
+      "heading": "The Dockerfile and image build process",
+      "paragraphs": [
+        "A Dockerfile is a text file that describes how an image should be built. A typical file starts from a base image, copies application files, installs dependencies, sets configuration and defines the command that should run when a container starts.",
+        "Reproducibility matters. Teams should pin important dependency versions, avoid unnecessary packages and keep build contexts small. Multi-stage builds can separate compilation tools from the final runtime image, producing smaller images with a reduced attack surface.",
+        "A container image should ideally be immutable. Instead of logging into a running container and modifying it manually, teams rebuild the image from version-controlled instructions and redeploy the new artifact."
+      ]
+    },
+    {
+      "heading": "Networking, volumes and environment configuration",
+      "paragraphs": [
+        "Containers are intentionally disposable, which means application state should not depend on the writable layer of a particular container. Docker volumes provide persistent storage that can outlive an individual container. Bind mounts are also commonly used in development to map host files into a container.",
+        "Docker networks allow containers to communicate without exposing every internal service directly to the host. Port publishing is used when a service must be reachable outside the Docker network.",
+        "Configuration is often supplied through environment variables, mounted files or external secret systems. Sensitive values should not be baked directly into public or reusable images."
+      ]
+    },
+    {
+      "heading": "What Docker Compose is for",
+      "paragraphs": [
+        "Real applications frequently depend on more than one process. A web application might need an API, database, cache and background worker. Docker Compose lets teams describe several related containers in one YAML file and start them together.",
+        "Compose is especially useful for local development, integration testing and smaller deployments. It gives teams a repeatable way to define networks, volumes, environment values and service dependencies without a long list of manual docker commands.",
+        "For very large production estates, teams often move beyond Compose to Kubernetes, a managed container service or another orchestration platform that provides cluster-wide scheduling, recovery and scaling."
+      ]
+    },
+    {
+      "heading": "When Docker is a good fit",
+      "paragraphs": [
+        "Docker is valuable when teams want repeatable development environments, portable build artifacts, isolated dependencies or a standardized unit for CI/CD and deployment. It is widely used for web services, APIs, background jobs, development tooling and test environments.",
+        "It is less useful when an application is tightly coupled to a specialized host environment that cannot be containerized cleanly, or when introducing containers would add operational complexity without solving a meaningful problem.",
+        "The strongest reason to use Docker is not that containers are fashionable. It is that packaging software into a consistent, testable artifact makes the path from source code to production easier to automate and reason about."
+      ]
+    }
+  ],
+  "faq": [
+    {
+      "question": "Is Docker a virtual machine?",
+      "answer": "No. Docker containers generally share the host operating-system kernel, while a virtual machine normally runs its own guest operating system and kernel."
+    },
+    {
+      "question": "Do I need Docker to use Kubernetes?",
+      "answer": "No. Kubernetes works with container runtimes through standardized interfaces and does not require Docker Engine on cluster nodes. Docker is still commonly used by developers to build container images."
+    },
+    {
+      "question": "What is Docker Compose?",
+      "answer": "Docker Compose is a tool for defining and running multi-container applications from a Compose file. It is especially popular for development and small multi-service environments."
+    },
+    {
+      "question": "Are Docker containers secure by default?",
+      "answer": "Containers provide useful isolation, but security still depends on image provenance, privileges, kernel security, patching, secrets, networking and runtime configuration. Containers should not be treated as an automatic security boundary."
+    }
+  ],
+  "sources": [
+    {"label": "Docker Documentation — Get Started", "url": "https://docs.docker.com/get-started/"},
+    {"label": "Docker Documentation — Dockerfile Reference", "url": "https://docs.docker.com/reference/dockerfile/"},
+    {"label": "Docker Documentation — Compose", "url": "https://docs.docker.com/compose/"}
+  ]
+}
