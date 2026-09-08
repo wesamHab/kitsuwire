@@ -9,6 +9,11 @@ export const metadata: Metadata = {
     template: "%s | KitsuWire",
   },
   description: "KitsuWire makes the signals shaping AI, technology, software and markets easier to understand.",
+  icons: {
+    icon: "/kitsuwire-mark.svg",
+    shortcut: "/kitsuwire-mark.svg",
+    apple: "/kitsuwire-mark.svg",
+  },
   openGraph: {
     title: "KitsuWire",
     description: "The signal behind what's next in AI, technology, software and markets.",
