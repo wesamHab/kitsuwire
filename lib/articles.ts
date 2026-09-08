@@ -7,6 +7,22 @@ export const categories = ["ai", "technology", "software", "markets"] as const;
 export type Category = (typeof categories)[number];
 export type ArticleTone = "violet" | "blue" | "orange" | "green";
 
+export type ArticleSection = {
+  heading: string;
+  paragraphs: string[];
+  bullets?: string[];
+};
+
+export type ArticleFaq = {
+  question: string;
+  answer: string;
+};
+
+export type ArticleSource = {
+  label: string;
+  url: string;
+};
+
 export type Article = {
   slug: string;
   category: Category;
@@ -19,7 +35,14 @@ export type Article = {
   tone: ArticleTone;
   featured?: boolean;
   tags?: string[];
+  seoTitle?: string;
+  seoDescription?: string;
+  author?: string;
+  keyTakeaways?: string[];
   body: string[];
+  sections?: ArticleSection[];
+  faq?: ArticleFaq[];
+  sources?: ArticleSource[];
 };
 
 export const categoryMeta: Record<Category, { title: string; description: string }> = {
@@ -42,6 +65,9 @@ function validateArticle(input: unknown, source: string): Article {
   for (const key of required) if (value[key] === undefined) throw new Error(`Missing '${key}' in ${source}`);
   if (!isCategory(String(value.category))) throw new Error(`Invalid category in ${source}`);
   if (!Array.isArray(value.body)) throw new Error(`Article body must be an array in ${source}`);
+  if (value.sections !== undefined && !Array.isArray(value.sections)) throw new Error(`Article sections must be an array in ${source}`);
+  if (value.faq !== undefined && !Array.isArray(value.faq)) throw new Error(`Article faq must be an array in ${source}`);
+  if (value.sources !== undefined && !Array.isArray(value.sources)) throw new Error(`Article sources must be an array in ${source}`);
   return value as Article;
 }
 
