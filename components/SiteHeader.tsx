@@ -1,10 +1,14 @@
 import Link from "next/link";
 import { ArrowRight, Search } from "lucide-react";
+import { FoxMark } from "./FoxMark";
 
 export function SiteHeader() {
   return (
     <header className="nav shell">
-      <Link className="brand" href="/"><span className="brand-mark">K</span><span>KITSU<span>WIRE</span></span></Link>
+      <Link className="brand" href="/">
+        <span className="brand-mark"><FoxMark size={27}/></span>
+        <span className="brand-word">KITSU<span>WIRE</span></span>
+      </Link>
       <nav className="nav-links">
         <Link href="/category/ai">AI</Link>
         <Link href="/category/technology">Technology</Link>
