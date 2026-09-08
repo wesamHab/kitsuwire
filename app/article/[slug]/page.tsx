@@ -1,0 +1,32 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { articles, getArticle } from "@/data/articles";
+import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
+
+export function generateStaticParams() {
+  return articles.map(({ slug }) => ({ slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const article = getArticle(slug);
+  if (!article) return {};
+  return {
+    title: article.title,
+    description: article.excerpt,
+    alternates: { canonical: `/article/${article.slug}` },
+    openGraph: { title: article.title, description: article.excerpt, type: "article", publishedTime: article.publishedAt }
+  };
+}
+
+export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const article = getArticle(slug);
+  if (!article) notFound();
+  const related = articles.filter((item) => item.category === article.category && item.slug !== article.slug).slice(0, 2);
+
+  return <main><SiteHeader/><article className="article-page shell"><Link className="back-link" href={`/category/${article.category}`}><ArrowLeft size={15}/> {article.categoryLabel}</Link><header className="article-head"><span className="category">{article.categoryLabel} · KITSUWIRE INTELLIGENCE</span><h1>{article.title}</h1><p>{article.excerpt}</p><div className="article-byline"><span>By KitsuWire Editorial</span><span>{article.readingTime} read</span><span>{new Date(article.publishedAt).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}</span></div></header><div className={`article-hero ${article.tone}`}><span>{article.categoryLabel}</span><strong>THE<br/>SIGNAL</strong></div><div className="article-layout"><aside><span>IN THIS STORY</span><p>{article.categoryLabel}</p><p>Analysis</p><p>Context</p></aside><div className="article-content">{article.body.map((paragraph,index)=><p key={index}>{paragraph}</p>)}<div className="article-callout"><span>KITSUWIRE TAKE</span><h2>Follow the constraint, not just the headline.</h2><p>The most important shifts often become visible where demand collides with a limited resource: compute, power, distribution, capital or attention.</p></div></div></div>{related.length>0&&<section className="related"><span className="kicker">KEEP READING</span>{related.map(item=><Link href={`/article/${item.slug}`} key={item.slug}><div><span>{item.categoryLabel} · {item.readingTime}</span><h3>{item.title}</h3></div><ArrowRight/></Link>)}</section>}</article><SiteFooter/></main>;
+}
