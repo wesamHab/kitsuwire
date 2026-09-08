@@ -1,0 +1,5 @@
+import type { Metadata } from "next";
+import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
+export const metadata:Metadata={title:"Imprint",description:"Legal information for KitsuWire."};
+export default function Imprint(){return <main><SiteHeader/><section className="info-page shell"><span className="kicker">IMPRINT</span><h1>Legal information.</h1><div className="info-copy"><div className="notice-card"><span>PRE-LAUNCH</span><h2>Operator details required.</h2><p>This page is structurally prepared, but the legally required operator information must be supplied and verified before kitsuwire.com is publicly launched.</p></div><p>We intentionally have not inserted personal names, addresses, telephone numbers or other legal details automatically.</p><h2>Information still required</h2><p>Depending on the final legal setup of KitsuWire, the imprint may require the operator or company name, a service address, contact details, and additional information applicable to the business and editorial offering.</p></div></section><SiteFooter/></main>}
