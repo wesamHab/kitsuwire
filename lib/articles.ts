@@ -7,42 +7,15 @@ export const categories = ["ai", "technology", "software", "markets"] as const;
 export type Category = (typeof categories)[number];
 export type ArticleTone = "violet" | "blue" | "orange" | "green";
 
-export type ArticleSection = {
-  heading: string;
-  paragraphs: string[];
-  bullets?: string[];
-};
-
-export type ArticleFaq = {
-  question: string;
-  answer: string;
-};
-
-export type ArticleSource = {
-  label: string;
-  url: string;
-};
+export type ArticleSection = { heading: string; paragraphs: string[]; bullets?: string[] };
+export type ArticleFaq = { question: string; answer: string };
+export type ArticleSource = { label: string; url: string };
 
 export type Article = {
-  slug: string;
-  category: Category;
-  categoryLabel: string;
-  title: string;
-  excerpt: string;
-  publishedAt: string;
-  updatedAt?: string;
-  readingTime: string;
-  tone: ArticleTone;
-  featured?: boolean;
-  tags?: string[];
-  seoTitle?: string;
-  seoDescription?: string;
-  author?: string;
-  keyTakeaways?: string[];
-  body: string[];
-  sections?: ArticleSection[];
-  faq?: ArticleFaq[];
-  sources?: ArticleSource[];
+  slug: string; category: Category; categoryLabel: string; title: string; excerpt: string;
+  publishedAt: string; updatedAt?: string; readingTime: string; tone: ArticleTone; featured?: boolean;
+  tags?: string[]; seoTitle?: string; seoDescription?: string; author?: string; keyTakeaways?: string[];
+  body: string[]; sections?: ArticleSection[]; faq?: ArticleFaq[]; sources?: ArticleSource[];
 };
 
 export const categoryMeta: Record<Category, { title: string; description: string }> = {
@@ -53,10 +26,7 @@ export const categoryMeta: Record<Category, { title: string; description: string
 };
 
 const contentRoot = path.join(process.cwd(), "content", "articles");
-
-function isCategory(value: string): value is Category {
-  return categories.includes(value as Category);
-}
+function isCategory(value: string): value is Category { return categories.includes(value as Category) }
 
 function validateArticle(input: unknown, source: string): Article {
   if (!input || typeof input !== "object") throw new Error(`Invalid article JSON: ${source}`);
@@ -71,31 +41,25 @@ function validateArticle(input: unknown, source: string): Article {
   return value as Article;
 }
 
+function parseArticleFile(file: string): Article {
+  const raw = readFileSync(file, "utf8");
+  try { return validateArticle(JSON.parse(raw), file) }
+  catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to parse article file '${path.relative(process.cwd(), file)}': ${message}`);
+  }
+}
+
 function articleFiles(): string[] {
   if (!existsSync(contentRoot)) return [];
   return categories.flatMap((category) => {
     const dir = path.join(contentRoot, category);
     if (!existsSync(dir)) return [];
-    return readdirSync(dir)
-      .filter((file) => file.endsWith(".json"))
-      .map((file) => path.join(dir, file));
+    return readdirSync(dir).filter((file) => file.endsWith(".json")).map((file) => path.join(dir, file));
   });
 }
 
-export const getAllArticles = cache((): Article[] =>
-  articleFiles()
-    .map((file) => validateArticle(JSON.parse(readFileSync(file, "utf8")), file))
-    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
-);
-
-export const getArticle = cache((slug: string): Article | undefined =>
-  getAllArticles().find((article) => article.slug === slug)
-);
-
-export const getArticlesByCategory = cache((category: Category): Article[] =>
-  getAllArticles().filter((article) => article.category === category)
-);
-
-export const getFeaturedArticle = cache((): Article | undefined =>
-  getAllArticles().find((article) => article.featured) ?? getAllArticles()[0]
-);
+export const getAllArticles = cache((): Article[] => articleFiles().map(parseArticleFile).sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)));
+export const getArticle = cache((slug: string): Article | undefined => getAllArticles().find((article) => article.slug === slug));
+export const getArticlesByCategory = cache((category: Category): Article[] => getAllArticles().filter((article) => article.category === category));
+export const getFeaturedArticle = cache((): Article | undefined => getAllArticles().find((article) => article.featured) ?? getAllArticles()[0]);
