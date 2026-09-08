@@ -21,5 +21,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Validate article content
+        run: npm run validate:content
+
+      - name: Type check
+        run: npm run typecheck
+
       - name: Build application
         run: npm run build
