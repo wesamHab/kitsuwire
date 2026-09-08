@@ -63,3 +63,20 @@ export const getAllArticles = cache((): Article[] => articleFiles().map(parseArt
 export const getArticle = cache((slug: string): Article | undefined => getAllArticles().find((article) => article.slug === slug));
 export const getArticlesByCategory = cache((category: Category): Article[] => getAllArticles().filter((article) => article.category === category));
 export const getFeaturedArticle = cache((): Article | undefined => getAllArticles().find((article) => article.featured) ?? getAllArticles()[0]);
+
+function normalizeTag(tag: string){ return tag.trim().toLowerCase() }
+export function getRelatedArticles(article: Article, limit = 4): Article[] {
+  const sourceTags = new Set((article.tags ?? []).map(normalizeTag));
+  return getAllArticles()
+    .filter((candidate) => candidate.slug !== article.slug)
+    .map((candidate) => {
+      const sharedTags = (candidate.tags ?? []).map(normalizeTag).filter((tag) => sourceTags.has(tag)).length;
+      const sameCategory = candidate.category === article.category ? 2 : 0;
+      const featuredBonus = candidate.featured ? 0.25 : 0;
+      return { candidate, score: sharedTags * 3 + sameCategory + featuredBonus };
+    })
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score || b.candidate.publishedAt.localeCompare(a.candidate.publishedAt))
+    .slice(0, limit)
+    .map(({ candidate }) => candidate);
+}
