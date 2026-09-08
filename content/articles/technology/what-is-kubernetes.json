@@ -1,1 +1,111 @@
-{"slug":"what-is-kubernetes","category":"technology","categoryLabel":"Technology","title":"What is Kubernetes? A beginner-friendly guide","excerpt":"Containers are easy to start. Kubernetes is about operating them reliably at scale.","publishedAt":"2026-09-08","readingTime":"10 min","tone":"blue","tags":["Kubernetes","containers","cloud"],"body":["Kubernetes is an open-source platform for orchestrating containerized applications. Instead of manually starting containers on individual servers, teams describe the state they want and Kubernetes continuously works toward it.","A Pod is the smallest deployable unit. Deployments manage replicated application Pods, Services provide stable networking, and ConfigMaps and Secrets separate configuration from application images.","Kubernetes becomes valuable when applications need scaling, self-healing, rolling updates and consistent deployment across clusters. Its flexibility also creates complexity, so smaller applications do not automatically need it."]}
+{
+  "slug": "what-is-kubernetes",
+  "category": "technology",
+  "categoryLabel": "Technology",
+  "title": "What is Kubernetes? A complete beginner-friendly guide",
+  "seoTitle": "What Is Kubernetes? Complete Beginner Guide to K8s",
+  "seoDescription": "Learn what Kubernetes is, how Pods, Deployments, Services and clusters work, when to use it, and why it matters for modern cloud applications.",
+  "excerpt": "Kubernetes automates how containerized applications are deployed, scaled, updated and recovered across groups of machines.",
+  "publishedAt": "2026-09-08",
+  "updatedAt": "2026-09-08",
+  "readingTime": "14 min",
+  "tone": "blue",
+  "author": "KitsuWire Editorial",
+  "tags": ["Kubernetes", "containers", "cloud", "DevOps", "platform engineering"],
+  "keyTakeaways": [
+    "Kubernetes is a container orchestration platform: it manages workloads across a cluster rather than running a single container on a single machine.",
+    "Its core building blocks include Pods, Deployments, Services, ConfigMaps, Secrets and persistent storage.",
+    "Kubernetes continuously compares the desired state with the actual state and tries to reconcile the difference.",
+    "It is powerful for scalable and resilient systems, but it adds operational complexity and is not automatically the right choice for small applications."
+  ],
+  "body": [
+    "Docker made it much easier to package software into portable containers. Kubernetes addresses the next problem: what happens when an organization needs to run many containers across multiple machines, keep them healthy, update them safely and scale them when demand changes?",
+    "Kubernetes, often shortened to K8s, is an open-source platform for orchestrating containerized applications. Teams declare how an application should run, and Kubernetes continuously works to keep the real environment close to that desired state."
+  ],
+  "sections": [
+    {
+      "heading": "Why Kubernetes exists",
+      "paragraphs": [
+        "Running one container manually is simple. Running hundreds of containers in production is not. Applications fail, servers disappear, traffic changes, releases need to be rolled out, and services must discover each other reliably. Without orchestration, teams end up building large amounts of custom automation around these problems.",
+        "Kubernetes provides a common control layer for that operational work. Instead of telling a server to start one specific container, you describe the state you want: for example, three replicas of an API, exposed through a stable service, using a particular configuration. Kubernetes then schedules the workloads and keeps checking whether reality matches that description."
+      ]
+    },
+    {
+      "heading": "How a Kubernetes cluster is organized",
+      "paragraphs": [
+        "A Kubernetes cluster is usually divided into a control plane and worker nodes. The control plane stores cluster state and makes decisions about scheduling and reconciliation. Worker nodes provide the compute resources where application workloads actually run.",
+        "The API server is the main interface to the cluster. Tools such as kubectl, deployment pipelines and platform services send requests to this API. Controllers then observe the stored desired state and act when something is missing or unhealthy.",
+        "This architecture is one reason Kubernetes is often described as declarative. You normally describe what the end state should be rather than scripting every operational step yourself."
+      ]
+    },
+    {
+      "heading": "The most important Kubernetes objects",
+      "paragraphs": [
+        "A Pod is the smallest deployable unit in Kubernetes. A Pod usually contains one main application container, although multiple tightly coupled containers can share the same Pod. Pods are intentionally replaceable and should not normally be treated like permanent servers.",
+        "A Deployment manages a set of replicated Pods and is commonly used for stateless applications. If a Pod disappears, the Deployment controller can create a replacement. Deployments also support controlled rolling updates when a new application image is released.",
+        "A Service gives a changing group of Pods a stable network identity. ConfigMaps hold non-sensitive configuration, Secrets are intended for sensitive values, and PersistentVolumeClaims let workloads request storage that can survive beyond the lifetime of an individual Pod."
+      ],
+      "bullets": [
+        "Pod: the smallest runnable workload unit.",
+        "Deployment: manages replicated, replaceable Pods and rolling updates.",
+        "Service: provides stable networking in front of changing Pods.",
+        "ConfigMap and Secret: separate application configuration from container images.",
+        "PersistentVolumeClaim: requests durable storage for stateful workloads."
+      ]
+    },
+    {
+      "heading": "What self-healing really means",
+      "paragraphs": [
+        "Kubernetes is often called self-healing, but that does not mean it can understand every application failure. It means the platform can react to conditions it knows how to observe. If a container crashes, a Pod can be restarted. If a node disappears, workloads controlled by higher-level objects may be recreated elsewhere.",
+        "Health probes make this behavior more useful. A readiness probe tells Kubernetes whether a workload is ready to receive traffic. A liveness probe can indicate that a process is stuck and should be restarted. A startup probe gives slower applications time to initialize before normal health checks become strict.",
+        "Good probes are therefore part of application design. Poorly chosen checks can make a healthy application look broken or keep traffic flowing to an instance that is not actually ready."
+      ]
+    },
+    {
+      "heading": "Scaling and rolling updates",
+      "paragraphs": [
+        "Kubernetes can run multiple replicas of an application and distribute them across available nodes. Teams can scale those replicas manually, or use mechanisms such as the Horizontal Pod Autoscaler to adjust replica counts based on observed metrics.",
+        "Deployments also make application releases safer by gradually replacing old Pods with new ones. If the new version fails health checks, the rollout can stop before every replica is replaced. This does not eliminate release risk, but it gives teams a standardized mechanism for progressive replacement and rollback.",
+        "Scaling the Pods themselves is only one layer. Production environments may also need node autoscaling, database scaling, queue management and capacity planning for external dependencies."
+      ]
+    },
+    {
+      "heading": "Kubernetes networking and storage",
+      "paragraphs": [
+        "Every Pod receives networking inside the cluster, while Services provide stable endpoints for groups of Pods. Ingress controllers or newer Gateway API implementations are commonly used to route external HTTP traffic into services inside the cluster.",
+        "Storage is more nuanced because containers and Pods are ephemeral by design. Stateful applications need storage systems that can provide persistent volumes with the required performance, availability and failure behavior. Kubernetes can orchestrate the request and attachment of storage, but it does not make the underlying storage system reliable by itself."
+      ]
+    },
+    {
+      "heading": "When Kubernetes is a good fit — and when it is not",
+      "paragraphs": [
+        "Kubernetes makes sense when teams need a shared platform for many services, standardized deployment patterns, automated recovery, frequent releases, elastic scaling or portability across infrastructure environments. It can also provide a strong foundation for internal platform engineering when many development teams need consistent operational capabilities.",
+        "The trade-off is complexity. Clusters require security hardening, upgrades, monitoring, backup strategies, networking, identity management and operational expertise. A small application with modest traffic may be easier and cheaper to run on a simpler managed platform, virtual machine or container service.",
+        "The right question is not whether Kubernetes is modern. The right question is whether the operational problems it solves are large enough to justify the platform you must operate in return."
+      ]
+    }
+  ],
+  "faq": [
+    {
+      "question": "Is Kubernetes the same as Docker?",
+      "answer": "No. Docker is commonly used to build and run containers. Kubernetes orchestrates containerized workloads across a cluster, handling scheduling, scaling, networking and recovery at a higher level."
+    },
+    {
+      "question": "Do I need Kubernetes for microservices?",
+      "answer": "No. Microservices can run on many platforms. Kubernetes can help when the number of services and operational requirements justify orchestration, but it is not a requirement for a microservice architecture."
+    },
+    {
+      "question": "What does K8s mean?",
+      "answer": "K8s is a common abbreviation for Kubernetes. The 8 represents the eight letters between the K and the final s."
+    },
+    {
+      "question": "Is Kubernetes only for the public cloud?",
+      "answer": "No. Kubernetes can run in public clouds, private data centers, edge environments and on-premises infrastructure. Managed cloud services simply reduce part of the operational burden."
+    }
+  ],
+  "sources": [
+    {"label": "Kubernetes Documentation — Concepts", "url": "https://kubernetes.io/docs/concepts/"},
+    {"label": "Kubernetes Documentation — Workloads", "url": "https://kubernetes.io/docs/concepts/workloads/"},
+    {"label": "Kubernetes Documentation — Services and Networking", "url": "https://kubernetes.io/docs/concepts/services-networking/"}
+  ]
+}
