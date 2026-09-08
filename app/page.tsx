@@ -4,6 +4,7 @@ import { getAllArticles, getFeaturedArticle } from "@/lib/articles";
 import { SiteHeader } from "@/components/SiteHeader";
 import { HeroSignal } from "@/components/HeroSignal";
 import { ArticleArtwork } from "@/components/ArticleArtwork";
+import { NewsletterSignup } from "@/components/NewsletterSignup";
 
 export default function Home(){
   const articles=getAllArticles();
@@ -37,7 +38,7 @@ export default function Home(){
     <section className="reference-section shell" id="wire">
       <div className="reference-section-head">
         <div><h2>On the Wire</h2><p>The latest insights, handpicked for you.</p></div>
-        <Link href="/category/ai">View all articles <ArrowRight size={15}/></Link>
+        <Link href="/articles">View all articles <ArrowRight size={15}/></Link>
       </div>
       <div className="reference-wire-grid">
         {wire.map(article=><Link className="reference-news-card" href={`/article/${article.slug}`} key={article.slug}>
@@ -76,7 +77,7 @@ export default function Home(){
     <section className="reference-newsletter shell" id="newsletter">
       <div className="reference-newsletter-icon"><Mail/></div>
       <div className="reference-newsletter-copy"><h2>Get the best tech insights, weekly.</h2><p>No spam. Just clear, valuable content.</p></div>
-      <form className="reference-newsletter-form"><input type="email" placeholder="you@example.com" aria-label="Email address"/><button type="submit">Subscribe <ArrowRight size={15}/></button></form>
+      <NewsletterSignup/>
     </section>
 
     <footer className="reference-footer shell"><span>© {new Date().getFullYear()} KitsuWire</span><nav><Link href="/about">About</Link><Link href="/contact">Contact</Link><Link href="/privacy">Privacy</Link><Link href="/imprint">Imprint</Link></nav></footer>
