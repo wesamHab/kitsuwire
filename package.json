@@ -6,11 +6,12 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "typecheck": "tsc --noEmit",
+    "validate:content": "node scripts/validate-content.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
-    "next": "15.5.2",
+    "next": "15.5.24",
     "react": "19.1.1",
     "react-dom": "19.1.1"
   },
