@@ -1,21 +1,13 @@
-import { FoxMark } from "./FoxMark";
+import { KitsuMascot } from "./KitsuMascot";
 
-export function HeroSignal() {
-  return (
-    <div className="hero-signal" aria-hidden="true">
-      <div className="hero-signal-grid" />
-      <div className="hero-signal-ring ring-a" />
-      <div className="hero-signal-ring ring-b" />
-      <div className="hero-fox-core"><FoxMark size={94} /></div>
-      <div className="hero-node node-ai"><span>AI</span></div>
-      <div className="hero-node node-tech"><span>TECH</span></div>
-      <div className="hero-node node-code"><span>CODE</span></div>
-      <div className="hero-node node-market"><span>MARKETS</span></div>
-      <div className="hero-wire wire-1" />
-      <div className="hero-wire wire-2" />
-      <div className="hero-wire wire-3" />
-      <div className="hero-wire wire-4" />
-      <div className="signal-chip">LIVE / 04 DESKS</div>
-    </div>
-  );
-}
+export function HeroSignal(){return <div className="hero-signal hero-art" aria-hidden="true">
+  <div className="hero-signal-grid"/>
+  <div className="hero-sun"/>
+  <div className="hero-horizon hero-horizon-a"/>
+  <div className="hero-horizon hero-horizon-b"/>
+  <div className="hero-city"/>
+  <div className="hero-trajectory"/>
+  <KitsuMascot className="hero-mascot"/>
+  <div className="hero-art-note"><span>CURIOSITY</span><span>INSIGHT</span><strong>A BRIGHTER TOMORROW</strong></div>
+  <div className="hero-art-tags"><span>AI</span><span>TECH</span><span>SOFTWARE</span><span>MARKETS</span></div>
+</div>}
