@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { KitsuCursor } from "@/components/KitsuCursor";
 import "./globals.css";
 import "./brand.css";
 import "./hero-polish.css";
@@ -41,7 +42,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           dangerouslySetInnerHTML={{ __html: themeScript }}
         />
       </head>
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        {children}
+        <KitsuCursor />
+      </body>
     </html>
   );
 }
