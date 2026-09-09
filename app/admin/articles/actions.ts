@@ -45,6 +45,12 @@ async function resolveTags(raw: string) {
   return tags;
 }
 
+async function resolveFeaturedImageId(raw: string) {
+  if (!raw) return null;
+  const media = await db.media.findFirst({ where: { id: raw, kind: "IMAGE" }, select: { id: true } });
+  return media?.id ?? null;
+}
+
 function structured(formData: FormData) {
   const sections = parseJson<SectionInput[]>(text(formData, "sectionsJson"), []).filter(item => item.heading?.trim()).map((item, position) => ({ heading: item.heading!.trim(), paragraphs: lines(item.paragraphs ?? ""), bullets: lines(item.bullets ?? ""), position }));
   const faq = parseJson<FaqInput[]>(text(formData, "faqJson"), []).filter(item => item.question?.trim() && item.answer?.trim()).map((item, position) => ({ question: item.question!.trim(), answer: item.answer!.trim(), position }));
@@ -64,6 +70,7 @@ export async function createArticleAction(formData: FormData) {
 
   const author = await db.author.upsert({ where: { name: session.name ?? "KitsuWire Editorial" }, update: {}, create: { name: session.name ?? "KitsuWire Editorial" } });
   const tags = await resolveTags(text(formData, "tags"));
+  const featuredImageId = await resolveFeaturedImageId(text(formData, "featuredImageId"));
   const { sections, faq, sources } = structured(formData);
   const now = new Date();
   const scheduledAt = status === ArticleStatus.SCHEDULED ? parseDate(text(formData, "scheduledAt"), text(formData, "timezoneOffset")) : null;
@@ -73,10 +80,10 @@ export async function createArticleAction(formData: FormData) {
     title, slug, excerpt: text(formData, "excerpt") || "Draft article — excerpt pending.", seoTitle: text(formData, "seoTitle") || null, seoDescription: text(formData, "seoDescription") || null,
     body: lines(text(formData, "body")), keyTakeaways: lines(text(formData, "keyTakeaways")), readingTime: text(formData, "readingTime") || "5 min", tone: text(formData, "tone") || "green", status,
     featured: formData.get("featured") === "on", allowAds: formData.get("allowAds") === "on", publishedAt: status === ArticleStatus.PUBLISHED ? now : null, scheduledAt,
-    categoryId, authorId: author.id, tags: { connect: tags.map(tag => ({ id: tag.id })) },
+    categoryId, authorId: author.id, featuredImageId, tags: { connect: tags.map(tag => ({ id: tag.id })) },
     sections: { create: sections }, faq: { create: faq }, sources: { create: sources },
   }});
-  await db.articleRevision.create({ data: { articleId: article.id, note: "Created in admin", snapshot: { title, slug, status, scheduledAt } } });
+  await db.articleRevision.create({ data: { articleId: article.id, note: "Created in admin", snapshot: { title, slug, status, scheduledAt, featuredImageId } } });
   revalidatePath("/admin"); revalidatePath("/admin/articles"); revalidatePath("/", "layout");
   redirect(`/admin/articles/${article.id}?saved=1`);
 }
@@ -91,6 +98,7 @@ export async function updateArticleAction(formData: FormData) {
   const statusRaw = text(formData, "status");
   const status = validStatuses.has(statusRaw as ArticleStatus) ? statusRaw as ArticleStatus : current.status;
   const tags = await resolveTags(text(formData, "tags"));
+  const featuredImageId = await resolveFeaturedImageId(text(formData, "featuredImageId"));
   const { sections, faq, sources } = structured(formData);
   const scheduledAt = status === ArticleStatus.SCHEDULED ? parseDate(text(formData, "scheduledAt"), text(formData, "timezoneOffset")) : null;
   const publishedAt = status === ArticleStatus.PUBLISHED ? (current.publishedAt ?? new Date()) : current.publishedAt;
@@ -102,9 +110,9 @@ export async function updateArticleAction(formData: FormData) {
     await tx.article.update({ where: { id }, data: {
       title, slug, excerpt: text(formData, "excerpt"), seoTitle: text(formData, "seoTitle") || null, seoDescription: text(formData, "seoDescription") || null,
       body: lines(text(formData, "body")), keyTakeaways: lines(text(formData, "keyTakeaways")), readingTime: text(formData, "readingTime") || "5 min", tone: text(formData, "tone") || current.tone,
-      status, featured: formData.get("featured") === "on", allowAds: formData.get("allowAds") === "on", categoryId: text(formData, "categoryId"), publishedAt, scheduledAt,
+      status, featured: formData.get("featured") === "on", allowAds: formData.get("allowAds") === "on", categoryId: text(formData, "categoryId"), publishedAt, scheduledAt, featuredImageId,
       tags: { set: tags.map(tag => ({ id: tag.id })) }, sections: { create: sections }, faq: { create: faq }, sources: { create: sources },
-      revisions: { create: { note: "Updated in admin", snapshot: { title, slug, status, scheduledAt, updatedAt: new Date().toISOString() } } },
+      revisions: { create: { note: "Updated in admin", snapshot: { title, slug, status, scheduledAt, featuredImageId, updatedAt: new Date().toISOString() } } },
     }});
   });
 
