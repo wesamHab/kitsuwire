@@ -16,6 +16,10 @@ function slugify(value) {
   return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
+function asUtcDate(value) {
+  return value ? new Date(`${value}T12:00:00.000Z`) : null;
+}
+
 function getFiles() {
   return categories.flatMap((category) => {
     const dir = path.join(root, category);
@@ -27,11 +31,7 @@ function getFiles() {
 async function ensureCategories() {
   for (const slug of categories) {
     const meta = categoryMeta[slug];
-    await prisma.category.upsert({
-      where: { slug },
-      update: meta,
-      create: { slug, ...meta },
-    });
+    await prisma.category.upsert({ where: { slug }, update: meta, create: { slug, ...meta } });
   }
 }
 
@@ -39,62 +39,39 @@ async function importArticle(file) {
   const article = JSON.parse(readFileSync(file, "utf8"));
   const category = await prisma.category.findUniqueOrThrow({ where: { slug: article.category } });
   const authorName = article.author || "KitsuWire Editorial";
-  const author = await prisma.author.upsert({
-    where: { name: authorName },
-    update: {},
-    create: { name: authorName },
-  });
+  const author = await prisma.author.upsert({ where: { name: authorName }, update: {}, create: { name: authorName } });
 
   const tagRecords = [];
   for (const name of article.tags || []) {
     const slug = slugify(name);
     if (!slug) continue;
-    tagRecords.push(await prisma.tag.upsert({
-      where: { slug },
-      update: { name },
-      create: { slug, name },
-    }));
+    tagRecords.push(await prisma.tag.upsert({ where: { slug }, update: { name }, create: { slug, name } }));
   }
 
-  const publishedAt = article.publishedAt ? new Date(`${article.publishedAt}T12:00:00.000Z`) : null;
+  const publishedAt = asUtcDate(article.publishedAt);
+  const contentUpdatedAt = asUtcDate(article.updatedAt || article.publishedAt) || new Date();
+  const common = {
+    title: article.title,
+    excerpt: article.excerpt,
+    seoTitle: article.seoTitle ?? null,
+    seoDescription: article.seoDescription ?? null,
+    body: article.body,
+    keyTakeaways: article.keyTakeaways ?? null,
+    readingTime: article.readingTime,
+    tone: article.tone,
+    featured: Boolean(article.featured),
+    allowAds: true,
+    status: ArticleStatus.PUBLISHED,
+    publishedAt,
+    updatedAt: contentUpdatedAt,
+    categoryId: category.id,
+    authorId: author.id,
+  };
 
   const saved = await prisma.article.upsert({
     where: { slug: article.slug },
-    update: {
-      title: article.title,
-      excerpt: article.excerpt,
-      seoTitle: article.seoTitle ?? null,
-      seoDescription: article.seoDescription ?? null,
-      body: article.body,
-      keyTakeaways: article.keyTakeaways ?? null,
-      readingTime: article.readingTime,
-      tone: article.tone,
-      featured: Boolean(article.featured),
-      allowAds: true,
-      status: ArticleStatus.PUBLISHED,
-      publishedAt,
-      categoryId: category.id,
-      authorId: author.id,
-      tags: { set: tagRecords.map(({ id }) => ({ id })) },
-    },
-    create: {
-      slug: article.slug,
-      title: article.title,
-      excerpt: article.excerpt,
-      seoTitle: article.seoTitle ?? null,
-      seoDescription: article.seoDescription ?? null,
-      body: article.body,
-      keyTakeaways: article.keyTakeaways ?? null,
-      readingTime: article.readingTime,
-      tone: article.tone,
-      featured: Boolean(article.featured),
-      allowAds: true,
-      status: ArticleStatus.PUBLISHED,
-      publishedAt,
-      categoryId: category.id,
-      authorId: author.id,
-      tags: { connect: tagRecords.map(({ id }) => ({ id })) },
-    },
+    update: { ...common, tags: { set: tagRecords.map(({ id }) => ({ id })) } },
+    create: { slug: article.slug, ...common, tags: { connect: tagRecords.map(({ id }) => ({ id })) } },
   });
 
   await prisma.$transaction([
@@ -118,6 +95,20 @@ async function importArticle(file) {
   if (article.sources?.length) {
     await prisma.articleSource.createMany({ data: article.sources.map((item, position) => ({ articleId: saved.id, label: item.label, url: item.url, position })) });
   }
+
+  const snapshot = {
+    title: article.title,
+    excerpt: article.excerpt,
+    body: article.body,
+    sections: article.sections || [],
+    faq: article.faq || [],
+    sources: article.sources || [],
+    tags: article.tags || [],
+    seoTitle: article.seoTitle ?? null,
+    seoDescription: article.seoDescription ?? null,
+  };
+  const existingRevision = await prisma.articleRevision.findFirst({ where: { articleId: saved.id, note: "Initial JSON import" } });
+  if (!existingRevision) await prisma.articleRevision.create({ data: { articleId: saved.id, snapshot, note: "Initial JSON import" } });
 
   console.log(`Imported ${article.slug}`);
 }
