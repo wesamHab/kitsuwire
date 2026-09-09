@@ -6,9 +6,10 @@ import { HeroSignal } from "@/components/HeroSignal";
 import { ArticleArtwork } from "@/components/ArticleArtwork";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 
-export default function Home(){
-  const articles=getAllArticles();
-  const featured=getFeaturedArticle();
+export const dynamic = "force-dynamic";
+
+export default async function Home(){
+  const [articles,featured]=await Promise.all([getAllArticles(),getFeaturedArticle()]);
   if(!featured)return null;
   const latest=articles.filter(a=>a.slug!==featured.slug);
   const wire=latest.slice(0,4);
