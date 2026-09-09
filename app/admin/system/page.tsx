@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Activity, Database, HardDrive, ServerCog, ShieldCheck } from "lucide-react";
+import { Activity, Database, HardDrive, MailCheck, ServerCog, ShieldCheck } from "lucide-react";
 import { getAdminSession } from "@/lib/admin-auth";
 import { getSystemHealth } from "@/lib/system-health";
 
@@ -18,7 +18,7 @@ export default async function AdminSystemPage() {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
   const health = await getSystemHealth();
-  const healthyConfig = health.config.databaseUrl && health.config.adminSessionSecret;
+  const healthyConfig = health.config.databaseUrl && health.config.adminSessionSecret && health.config.newsletterTokenSecret;
 
   return <main className="admin-subpage">
     <header><div><Link href="/admin">← Dashboard</Link><p className="admin-kicker">SYSTEM</p><h1>System Health</h1></div><Activity size={24}/></header>
@@ -37,7 +37,9 @@ export default async function AdminSystemPage() {
 
       <section className="admin-panel"><div className="admin-panel-head"><div><p className="admin-kicker">MEDIA STORAGE</p><h2>Persistent files</h2></div><HardDrive size={20}/></div><div className="admin-health-list"><div><span>Status</span><strong className={health.storage.ok ? "health-good" : "health-bad"}>{health.storage.ok ? "Writable" : "Unavailable"}</strong></div>{health.storage.ok ? <><div><span>Disk used</span><strong>{health.storage.usedPercent}%</strong></div><div><span>Free</span><strong>{health.storage.freeGb} GB</strong></div><div><span>Total</span><strong>{health.storage.totalGb} GB</strong></div></> : null}<div><span>Path</span><code>{health.storage.path}</code></div></div></section>
 
-      <section className="admin-panel"><div className="admin-panel-head"><div><p className="admin-kicker">SECURITY & RETENTION</p><h2>Configuration checks</h2></div><ShieldCheck size={20}/></div><div className="admin-health-list"><div><span>Admin session secret</span><strong className={health.config.adminSessionSecret ? "health-good" : "health-bad"}>{health.config.adminSessionSecret ? "Strong enough" : "Missing / too short"}</strong></div><div><span>Analytics retention</span><strong>{health.config.analyticsRetentionDays} days</strong></div><div><span>Media root</span><code>{health.config.mediaRoot}</code></div></div></section>
+      <section className="admin-panel"><div className="admin-panel-head"><div><p className="admin-kicker">SECURITY & RETENTION</p><h2>Configuration checks</h2></div><ShieldCheck size={20}/></div><div className="admin-health-list"><div><span>Admin session secret</span><strong className={health.config.adminSessionSecret ? "health-good" : "health-bad"}>{health.config.adminSessionSecret ? "Strong enough" : "Missing / too short"}</strong></div><div><span>Newsletter token secret</span><strong className={health.config.newsletterTokenSecret ? "health-good" : "health-bad"}>{health.config.newsletterTokenSecret ? "Ready" : "Missing / too short"}</strong></div><div><span>Analytics retention</span><strong>{health.config.analyticsRetentionDays} days</strong></div><div><span>Media root</span><code>{health.config.mediaRoot}</code></div></div></section>
+
+      <section className="admin-panel"><div className="admin-panel-head"><div><p className="admin-kicker">NEWSLETTER</p><h2>Double opt-in delivery</h2></div><MailCheck size={20}/></div><div className="admin-health-list"><div><span>Confirmation webhook</span><strong className={health.config.newsletterDeliveryWebhook ? "health-good" : "health-warn"}>{health.config.newsletterDeliveryWebhook ? "Connected" : "Not connected"}</strong></div><div><span>Public URL</span><code>{health.config.newsletterPublicUrl}</code></div><div><span>Subscriber storage</span><strong className="health-good">PostgreSQL</strong></div></div><p className="admin-panel-copy">The database workflow is ready even when email delivery is not connected. Pending addresses remain inactive until confirmation.</p></section>
     </div>
 
     <p className="admin-note">Docker container status, Nginx/SSL expiry and off-server backup verification will be connected when the production VPS deployment is wired into the admin system.</p>
