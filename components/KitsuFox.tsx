@@ -1,20 +1,20 @@
 import type { SVGProps } from "react";
 
 type FoxProps = SVGProps<SVGSVGElement> & {
-  mood?: "calm" | "happy";
+  mood?: "calm" | "happy" | "sleeping";
 };
 
 export function KitsuFox({ mood = "calm", ...props }: FoxProps) {
+  const sleeping = mood === "sleeping";
   return (
     <svg viewBox="0 0 120 104" role="img" aria-label="KitsuWire fox" {...props}>
       <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="5">
         <path fill="#fff" d="M20 36 24 7l24 18c8-4 17-5 25-2L96 6l4 34c7 7 11 16 11 27 0 21-22 34-51 34S9 88 9 67c0-12 4-22 11-31Z" />
         <path fill="#c9ff42" d="m27 17 4 19 13-10-17-9Zm65 0-5 22-12-14 17-8Z" strokeWidth="3.5" />
         <path fill="#c9ff42" d="M20 70c8 2 13 7 18 14-10-2-16-6-20-11l2-3Zm80-1c-7 2-13 7-17 14 9-2 15-6 19-11l-2-3Z" strokeWidth="3" />
-        <path d="M43 57c3-4 8-4 11 0" />
-        <path d="M68 57c3-4 8-4 11 0" />
+        {sleeping ? <><path d="M42 57c4 4 9 4 13 0"/><path d="M67 57c4 4 9 4 13 0"/></> : <><path d="M43 57c3-4 8-4 11 0" /><path d="M68 57c3-4 8-4 11 0" /></>}
         <path fill="#111315" d="M57 67c2-2 5-2 7 0-1 4-2 5-4 5s-3-1-3-5Z" strokeWidth="3" />
-        {mood === "happy" ? <path d="M49 77c7 8 16 8 23 0" /> : <path d="M54 78c4 3 8 3 12 0" />}
+        {mood === "happy" ? <path d="M49 77c7 8 16 8 23 0" /> : sleeping ? <path d="M55 79c3-2 7-2 10 0"/> : <path d="M54 78c4 3 8 3 12 0" />}
       </g>
     </svg>
   );
