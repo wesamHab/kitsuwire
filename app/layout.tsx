@@ -12,6 +12,7 @@ import "./article-pro.css";
 import "./utility.css";
 import "./admin.css";
 import "./media.css";
+import "./seo-admin.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://kitsuwire.com"),
