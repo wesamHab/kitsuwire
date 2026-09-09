@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { KitsuFox } from "./KitsuFox";
 
-export function KitsuCursor() {
+export function KitsuCursor({ enabled = true }: { enabled?: boolean }) {
   const cursorRef = useRef<HTMLDivElement>(null);
   const target = useRef({ x: -100, y: -100 });
   const current = useRef({ x: -100, y: -100 });
@@ -12,8 +12,9 @@ export function KitsuCursor() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (!window.matchMedia("(pointer: fine)").matches) return;
+    if (!enabled || !window.matchMedia("(pointer: fine)").matches) return;
     let frame = 0;
+    document.documentElement.dataset.kitsuCursor = "enabled";
 
     const move = (event: MouseEvent) => {
       target.current = { x: event.clientX, y: event.clientY };
@@ -25,13 +26,10 @@ export function KitsuCursor() {
     const up = () => setPressed(false);
     const leave = () => setVisible(false);
     const enter = () => setVisible(true);
-
     const animate = () => {
       current.current.x += (target.current.x - current.current.x) * 0.28;
       current.current.y += (target.current.y - current.current.y) * 0.28;
-      if (cursorRef.current) {
-        cursorRef.current.style.transform = `translate3d(${current.current.x}px, ${current.current.y}px, 0)`;
-      }
+      if (cursorRef.current) cursorRef.current.style.transform = `translate3d(${current.current.x}px, ${current.current.y}px, 0)`;
       frame = requestAnimationFrame(animate);
     };
 
@@ -43,6 +41,7 @@ export function KitsuCursor() {
     frame = requestAnimationFrame(animate);
 
     return () => {
+      delete document.documentElement.dataset.kitsuCursor;
       cancelAnimationFrame(frame);
       window.removeEventListener("mousemove", move);
       window.removeEventListener("mousedown", down);
@@ -50,15 +49,8 @@ export function KitsuCursor() {
       document.documentElement.removeEventListener("mouseleave", leave);
       document.documentElement.removeEventListener("mouseenter", enter);
     };
-  }, []);
+  }, [enabled]);
 
-  return (
-    <div
-      ref={cursorRef}
-      className={`kitsu-cursor${visible ? " is-visible" : ""}${interactive ? " is-interactive" : ""}${pressed ? " is-pressed" : ""}`}
-      aria-hidden="true"
-    >
-      <KitsuFox mood={interactive ? "happy" : "calm"} />
-    </div>
-  );
+  if (!enabled) return null;
+  return <div ref={cursorRef} className={`kitsu-cursor${visible ? " is-visible" : ""}${interactive ? " is-interactive" : ""}${pressed ? " is-pressed" : ""}`} aria-hidden="true"><KitsuFox mood={interactive ? "happy" : "calm"} /></div>;
 }
