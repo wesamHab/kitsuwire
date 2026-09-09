@@ -33,6 +33,8 @@ export async function getSystemHealth() {
   }
 
   const memory = process.memoryUsage();
+  const adminSecretReady = Boolean(process.env.ADMIN_SESSION_SECRET && process.env.ADMIN_SESSION_SECRET.length >= 32);
+  const newsletterTokenSecretReady = Boolean((process.env.NEWSLETTER_TOKEN_SECRET && process.env.NEWSLETTER_TOKEN_SECRET.length >= 32) || adminSecretReady);
   return {
     database,
     storage,
@@ -46,9 +48,12 @@ export async function getSystemHealth() {
     },
     config: {
       databaseUrl: Boolean(process.env.DATABASE_URL),
-      adminSessionSecret: Boolean(process.env.ADMIN_SESSION_SECRET && process.env.ADMIN_SESSION_SECRET.length >= 32),
+      adminSessionSecret: adminSecretReady,
       mediaRoot: mediaRoot(),
       analyticsRetentionDays: Number(process.env.ANALYTICS_RETENTION_DAYS || 180),
+      newsletterDeliveryWebhook: Boolean(process.env.NEWSLETTER_DELIVERY_WEBHOOK_URL),
+      newsletterTokenSecret: newsletterTokenSecretReady,
+      newsletterPublicUrl: process.env.NEWSLETTER_PUBLIC_URL || (process.env.NODE_ENV === "production" ? "https://kitsuwire.com" : "http://localhost:3000"),
     },
   };
 }
