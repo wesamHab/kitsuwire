@@ -11,7 +11,17 @@ const validStatuses = new Set(Object.values(ArticleStatus));
 function text(formData: FormData, key: string) { return String(formData.get(key) ?? "").trim(); }
 function slugify(value: string) { return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""); }
 function lines(value: string) { return value.split(/\r?\n/).map(item => item.trim()).filter(Boolean); }
-function parseDate(value: string) { if (!value) return null; const date = new Date(value); return Number.isNaN(date.getTime()) ? null : date; }
+function parseDate(value: string, offsetRaw: string) {
+  if (!value) return null;
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
+  if (!match) return null;
+  const [, y, m, d, h, min] = match;
+  const offset = Number(offsetRaw);
+  if (!Number.isFinite(offset)) return null;
+  const utcMs = Date.UTC(Number(y), Number(m) - 1, Number(d), Number(h), Number(min)) + offset * 60_000;
+  const date = new Date(utcMs);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
 function parseJson<T>(value: string, fallback: T): T { try { return JSON.parse(value) as T; } catch { return fallback; } }
 
 type SectionInput = { heading?: string; paragraphs?: string; bullets?: string };
@@ -56,7 +66,7 @@ export async function createArticleAction(formData: FormData) {
   const tags = await resolveTags(text(formData, "tags"));
   const { sections, faq, sources } = structured(formData);
   const now = new Date();
-  const scheduledAt = status === ArticleStatus.SCHEDULED ? parseDate(text(formData, "scheduledAt")) : null;
+  const scheduledAt = status === ArticleStatus.SCHEDULED ? parseDate(text(formData, "scheduledAt"), text(formData, "timezoneOffset")) : null;
   if (status === ArticleStatus.SCHEDULED && !scheduledAt) redirect("/admin/articles/new?error=schedule");
 
   const article = await db.article.create({ data: {
@@ -82,7 +92,7 @@ export async function updateArticleAction(formData: FormData) {
   const status = validStatuses.has(statusRaw as ArticleStatus) ? statusRaw as ArticleStatus : current.status;
   const tags = await resolveTags(text(formData, "tags"));
   const { sections, faq, sources } = structured(formData);
-  const scheduledAt = status === ArticleStatus.SCHEDULED ? parseDate(text(formData, "scheduledAt")) : null;
+  const scheduledAt = status === ArticleStatus.SCHEDULED ? parseDate(text(formData, "scheduledAt"), text(formData, "timezoneOffset")) : null;
   const publishedAt = status === ArticleStatus.PUBLISHED ? (current.publishedAt ?? new Date()) : current.publishedAt;
 
   await db.$transaction(async tx => {
