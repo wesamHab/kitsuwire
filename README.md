@@ -71,33 +71,31 @@ Admin sessions are stored in an HttpOnly, SameSite cookie and signed with `ADMIN
 For Docker production, `ADMIN_SESSION_SECRET` is passed into the web container through Compose. Keep the production value outside Git and use a strong random secret.
 
 ## Newsletter double opt-in
-The public newsletter form stores signup requests in PostgreSQL as inactive records. An address becomes an active recipient only after the confirmation link is used.
+The public newsletter form stores signup requests in PostgreSQL as inactive records. An address becomes active only after the confirmation link is used. Confirmation links expire after 48 hours.
 
-Configure the public URL and optional provider-neutral email delivery webhook:
+Brevo is the preferred confirmation-email provider:
 
 ```text
 NEWSLETTER_PUBLIC_URL="https://kitsuwire.com"
+NEWSLETTER_TOKEN_SECRET="use-a-long-random-secret-at-least-32-characters"
+BREVO_API_KEY="your-brevo-api-key"
+BREVO_SENDER_EMAIL="newsletter@kitsuwire.com"
+BREVO_SENDER_NAME="KitsuWire"
+BREVO_REPLY_TO_EMAIL=""
+```
+
+KitsuWire sends confirmation messages directly through Brevo's transactional email API when both `BREVO_API_KEY` and `BREVO_SENDER_EMAIL` are configured. The sender/domain must be authenticated in Brevo before production sending.
+
+A provider-neutral webhook is retained as a fallback and is used only when Brevo is not configured:
+
+```text
 NEWSLETTER_DELIVERY_WEBHOOK_URL="https://your-delivery-service.example/webhook"
 NEWSLETTER_DELIVERY_WEBHOOK_SECRET="use-a-random-signing-secret"
-NEWSLETTER_TOKEN_SECRET="use-a-long-random-secret-at-least-32-characters"
 ```
 
-If `NEWSLETTER_DELIVERY_WEBHOOK_URL` is empty, signup requests are still stored as `Pending`, but no confirmation email is sent and those addresses are not exported as active recipients.
+If neither Brevo nor the webhook is configured, signup requests remain `Pending`, no confirmation mail is sent, and those addresses are never exported as active recipients.
 
-The delivery webhook receives JSON shaped like:
-
-```json
-{
-  "event": "newsletter.confirmation_requested",
-  "brand": "KitsuWire",
-  "to": "reader@example.com",
-  "confirmationUrl": "https://kitsuwire.com/newsletter/confirm?token=..."
-}
-```
-
-When `NEWSLETTER_DELIVERY_WEBHOOK_SECRET` is configured, KitsuWire signs the exact JSON request body with HMAC-SHA256 in the `x-kitsuwire-signature` header.
-
-Newsletter management is available at `/admin/newsletter`, including Pending/Active/Unsubscribed status, resend confirmation, unsubscribe, permanent deletion and protected CSV export of confirmed active recipients.
+Newsletter management is available at `/admin/newsletter`, including Pending/Active/Unsubscribed status, resend confirmation, unsubscribe, permanent deletion and protected CSV export of confirmed active recipients with individual unsubscribe URLs.
 
 ## Full Docker stack
 ```bash
