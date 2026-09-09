@@ -10,6 +10,7 @@ export type ArticleTone = "violet" | "blue" | "orange" | "green";
 export type ArticleSection = { heading: string; paragraphs: string[]; bullets?: string[] };
 export type ArticleFaq = { question: string; answer: string };
 export type ArticleSource = { label: string; url: string };
+export type ArticleImage = { url: string; altText?: string; width?: number; height?: number };
 
 export type Article = {
   slug: string;
@@ -22,6 +23,7 @@ export type Article = {
   readingTime: string;
   tone: ArticleTone;
   featured?: boolean;
+  featuredImage?: ArticleImage;
   tags?: string[];
   seoTitle?: string;
   seoDescription?: string;
@@ -43,6 +45,7 @@ export const categoryMeta: Record<Category, { title: string; description: string
 const articleInclude = {
   category: true,
   author: true,
+  featuredImage: true,
   tags: true,
   sections: { orderBy: { position: "asc" as const } },
   faq: { orderBy: { position: "asc" as const } },
@@ -70,6 +73,12 @@ function toArticle(record: DbArticle): Article {
     readingTime: record.readingTime,
     tone: record.tone as ArticleTone,
     featured: record.featured,
+    featuredImage: record.featuredImage ? {
+      url: record.featuredImage.url,
+      altText: record.featuredImage.altText ?? undefined,
+      width: record.featuredImage.width ?? undefined,
+      height: record.featuredImage.height ?? undefined,
+    } : undefined,
     tags: record.tags.map((tag) => tag.name),
     seoTitle: record.seoTitle ?? undefined,
     seoDescription: record.seoDescription ?? undefined,
@@ -108,7 +117,7 @@ export const getArticlesByCategory = cache(async (category: Category): Promise<A
 
 export const getFeaturedArticle = cache(async (): Promise<Article | undefined> => {
   const all = await getAllArticles();
-  return all.find(article => article.featured) ?? all[0];
+  return all.find(article => article.featureed) ?? all[0];
 });
 
 function normalizeTag(tag: string) { return tag.trim().toLowerCase(); }
