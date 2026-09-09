@@ -118,6 +118,24 @@ export async function updateArticleAction(formData: FormData) {
   revalidatePath("/admin");
   revalidatePath("/admin/articles");
   revalidatePath(`/admin/articles/${id}`);
+  revalidatePath(`/article/${current.slug}`);
+  revalidatePath(`/article/${slug}`);
   revalidatePath("/", "layout");
   redirect(`/admin/articles/${id}?saved=1`);
+}
+
+export async function deleteArticleAction(formData: FormData) {
+  await requireAdmin();
+  const id = text(formData, "id");
+  if (!id) redirect("/admin/articles");
+
+  const article = await db.article.findUnique({ where: { id }, select: { slug: true } });
+  if (!article) redirect("/admin/articles");
+
+  await db.article.delete({ where: { id } });
+  revalidatePath("/admin");
+  revalidatePath("/admin/articles");
+  revalidatePath(`/article/${article.slug}`);
+  revalidatePath("/", "layout");
+  redirect("/admin/articles?deleted=1");
 }
