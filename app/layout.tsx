@@ -13,6 +13,7 @@ import "./utility.css";
 import "./admin.css";
 import "./media.css";
 import "./seo-admin.css";
+import "./taxonomy-admin.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://kitsuwire.com"),
