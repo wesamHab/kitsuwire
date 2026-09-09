@@ -37,6 +37,9 @@ services:
       NODE_ENV: production
       DATABASE_URL: postgresql://kitsuwire:${POSTGRES_PASSWORD:-kitsuwire_dev}@db:5432/kitsuwire?schema=public
       ADMIN_SESSION_SECRET: ${ADMIN_SESSION_SECRET}
+      MEDIA_ROOT: /app/data/uploads
+    volumes:
+      - kitsuwire_media_data:/app/data/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -45,3 +48,4 @@ services:
 
 volumes:
   kitsuwire_postgres_data:
+  kitsuwire_media_data:
