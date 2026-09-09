@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Activity, BarChart3, FileText, Image, Search, Settings, Sparkles, Users, WandSparkles } from "lucide-react";
+import { Activity, BarChart3, FileText, Image, Search, Settings, Sparkles, Tags, Users, WandSparkles } from "lucide-react";
 import { getAdminSession } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { getAnalyticsOverview } from "@/lib/analytics";
@@ -32,6 +32,7 @@ export default async function AdminDashboard() {
         <Link className="active" href="/admin"><Activity size={17}/> Dashboard</Link>
         <Link href="/admin/articles"><FileText size={17}/> Articles</Link>
         <Link href="/admin/media"><Image size={17}/> Media</Link>
+        <Link href="/admin/taxonomy"><Tags size={17}/> Categories & Tags</Link>
         <Link href="/admin/analytics"><BarChart3 size={17}/> Analytics</Link>
         <Link href="/admin/seo"><Search size={17}/> SEO</Link>
         <Link href="/admin/automation"><WandSparkles size={17}/> Automation</Link>
