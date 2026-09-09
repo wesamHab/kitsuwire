@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
+import { auditArticleSeo } from "@/lib/seo-audit";
 import { updateArticleAction } from "../actions";
 import { DeleteArticleButton } from "./DeleteArticleButton";
 import { StructuredContentEditor } from "../StructuredContentEditor";
@@ -26,12 +27,14 @@ export default async function EditArticlePage({ params, searchParams }: { params
   ]);
   if (!article) notFound();
 
+  const audit = auditArticleSeo(article);
   const now = new Date();
   const isPublic = (article.status === "PUBLISHED" && Boolean(article.publishedAt && article.publishedAt <= now)) || (article.status === "SCHEDULED" && Boolean(article.scheduledAt && article.scheduledAt <= now));
   const previewHref = isPublic ? `/article/${article.slug}` : `/admin/articles/${article.id}/preview`;
   const initialSections = article.sections.map(section => ({ heading: section.heading, paragraphs: jsonLines(section.paragraphs), bullets: jsonLines(section.bullets) }));
   const initialFaq = article.faq.map(item => ({ question: item.question, answer: item.answer }));
   const initialSources = article.sources.map(item => ({ label: item.label, url: item.url }));
+  const scoreClass = audit.score >= 90 ? "seo-score-good" : audit.score >= 75 ? "seo-score-ok" : audit.score >= 55 ? "seo-score-warn" : "seo-score-bad";
 
   return <main className="admin-subpage admin-editor-page">
     <header><div><Link href="/admin/articles">← Articles</Link><p className="admin-kicker">CONTENT / EDIT</p><h1>Edit article</h1></div><Link className="admin-outline-btn" href={previewHref} target="_blank">{isPublic ? "View public page" : "Preview draft"}</Link></header>
@@ -51,6 +54,11 @@ export default async function EditArticlePage({ params, searchParams }: { params
         <StructuredContentEditor initialSections={initialSections} initialFaq={initialFaq} initialSources={initialSources}/>
       </section>
       <aside className="admin-editor-side admin-panel">
+        <div className="admin-seo-editor-card">
+          <div className="admin-seo-editor-card-head"><div><p className="admin-kicker">SEO SCORE</p><strong>{audit.grade}</strong></div><span className={`admin-seo-editor-card-score ${scoreClass}`}>{audit.score}</span></div>
+          {audit.issues.length ? <ul>{audit.issues.slice(0,4).map(issue => <li key={issue.code}>{issue.label}</li>)}</ul> : <small>No SEO issues detected.</small>}
+          <Link href="/admin/seo">Open SEO Control Center →</Link>
+        </div>
         <label>Status<select name="status" defaultValue={article.status}><option>IDEA</option><option>DRAFT</option><option>REVIEW</option><option>APPROVED</option><option>SCHEDULED</option><option>PUBLISHED</option><option>ARCHIVED</option></select></label>
         <label>Schedule publication<ScheduleFields defaultIso={article.scheduledAt?.toISOString() ?? ""}/><small>Used when status is SCHEDULED.</small></label>
         <label>Category<select name="categoryId" defaultValue={article.categoryId}>{categories.map(category=><option value={category.id} key={category.id}>{category.title}</option>)}</select></label>
