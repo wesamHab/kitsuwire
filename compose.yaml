@@ -6,6 +6,8 @@ services:
       POSTGRES_DB: kitsuwire
       POSTGRES_USER: kitsuwire
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kitsuwire_dev}
+    ports:
+      - "127.0.0.1:5432:5432"
     volumes:
       - kitsuwire_postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -14,8 +16,21 @@ services:
       timeout: 5s
       retries: 10
 
+  migrate:
+    build:
+      context: .
+      target: dbtool
+    environment:
+      DATABASE_URL: postgresql://kitsuwire:${POSTGRES_PASSWORD:-kitsuwire_dev}@db:5432/kitsuwire?schema=public
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
   web:
-    build: .
+    build:
+      context: .
+      target: runner
     ports:
       - "3000:3000"
     environment:
@@ -24,6 +39,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
 volumes:
   kitsuwire_postgres_data:
