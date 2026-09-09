@@ -1,0 +1,180 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ArticleStatus {
+  IDEA
+  DRAFT
+  REVIEW
+  APPROVED
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  AUTHOR
+}
+
+enum MediaKind {
+  IMAGE
+  VIDEO
+  DOCUMENT
+  OTHER
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String?
+  role         UserRole @default(AUTHOR)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Author {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  bio       String?
+  avatarUrl String?
+  articles  Article[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  label       String
+  title       String
+  description String
+  articles    Article[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Tag {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  articles  Article[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Media {
+  id          String     @id @default(cuid())
+  kind        MediaKind  @default(IMAGE)
+  filename    String
+  url         String     @unique
+  altText     String?
+  width       Int?
+  height      Int?
+  fileSize    Int?
+  articles    Article[]  @relation("FeaturedImage")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Article {
+  id               String          @id @default(cuid())
+  slug             String          @unique
+  title            String
+  excerpt          String
+  seoTitle         String?
+  seoDescription   String?
+  body             Json
+  keyTakeaways     Json?
+  readingTime      String
+  tone             String
+  featured         Boolean         @default(false)
+  allowAds         Boolean         @default(true)
+  status           ArticleStatus   @default(DRAFT)
+  publishedAt      DateTime?
+  scheduledAt      DateTime?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  categoryId       String
+  category         Category        @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  authorId         String?
+  author           Author?         @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  featuredImageId  String?
+  featuredImage    Media?          @relation("FeaturedImage", fields: [featuredImageId], references: [id], onDelete: SetNull)
+
+  tags             Tag[]
+  sections         ArticleSection[]
+  faq              ArticleFaq[]
+  sources          ArticleSource[]
+  revisions        ArticleRevision[]
+
+  @@index([status, publishedAt])
+  @@index([categoryId, publishedAt])
+}
+
+model ArticleSection {
+  id        String   @id @default(cuid())
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  heading   String
+  paragraphs Json
+  bullets    Json?
+  position  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([articleId, position])
+  @@index([articleId])
+}
+
+model ArticleFaq {
+  id        String   @id @default(cuid())
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  question  String
+  answer    String
+  position  Int
+
+  @@unique([articleId, position])
+  @@index([articleId])
+}
+
+model ArticleSource {
+  id        String   @id @default(cuid())
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  label     String
+  url       String
+  position  Int
+
+  @@unique([articleId, position])
+  @@index([articleId])
+}
+
+model ArticleRevision {
+  id        String   @id @default(cuid())
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  snapshot  Json
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@index([articleId, createdAt])
+}
+
+model NewsletterSubscriber {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  isActive     Boolean  @default(true)
+  source       String?
+  subscribedAt DateTime @default(now())
+  unsubscribedAt DateTime?
+}
