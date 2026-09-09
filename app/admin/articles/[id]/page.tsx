@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { updateArticleAction } from "../actions";
+import { DeleteArticleButton } from "./DeleteArticleButton";
 
 export const metadata = { title: "Edit Article", robots: { index: false, follow: false } };
 
@@ -21,8 +22,11 @@ export default async function EditArticlePage({ params, searchParams }: { params
   ]);
   if (!article) notFound();
 
+  const isPublic = article.status === "PUBLISHED" && Boolean(article.publishedAt && article.publishedAt <= new Date());
+  const previewHref = isPublic ? `/article/${article.slug}` : `/admin/articles/${article.id}/preview`;
+
   return <main className="admin-subpage admin-editor-page">
-    <header><div><Link href="/admin/articles">← Articles</Link><p className="admin-kicker">CONTENT / EDIT</p><h1>Edit article</h1></div><Link className="admin-outline-btn" href={`/article/${article.slug}`} target="_blank">Preview public page</Link></header>
+    <header><div><Link href="/admin/articles">← Articles</Link><p className="admin-kicker">CONTENT / EDIT</p><h1>Edit article</h1></div><Link className="admin-outline-btn" href={previewHref} target="_blank">{isPublic ? "View public page" : "Preview draft"}</Link></header>
     {saved ? <p className="admin-success">Changes saved successfully.</p> : null}
     <form action={updateArticleAction} className="admin-editor-form">
       <input type="hidden" name="id" value={article.id}/>
@@ -46,5 +50,9 @@ export default async function EditArticlePage({ params, searchParams }: { params
         <div className="admin-editor-meta"><small>Created {article.createdAt.toLocaleDateString("en-GB")}</small><small>Updated {article.updatedAt.toLocaleString("en-GB")}</small></div>
       </aside>
     </form>
+    <section className="admin-danger-zone admin-panel">
+      <div><p className="admin-kicker">DANGER ZONE</p><h2>Delete article</h2><p>Permanently remove this article from PostgreSQL. This cannot be undone.</p></div>
+      <DeleteArticleButton id={article.id} title={article.title}/>
+    </section>
   </main>;
 }
