@@ -18,6 +18,7 @@ export default async function AdminArticlePreview({ params }: { params: Promise<
     include: {
       category: true,
       author: true,
+      featuredImage: true,
       tags: true,
       sections: { orderBy: { position: "asc" } },
       faq: { orderBy: { position: "asc" } },
@@ -37,6 +38,7 @@ export default async function AdminArticlePreview({ params }: { params: Promise<
       <p className="admin-preview-excerpt">{article.excerpt}</p>
       <div className="article-byline"><span>By {article.author?.name ?? "KitsuWire Editorial"}</span><span>{article.readingTime} read</span><span>Status: {article.status}</span></div>
       {article.tags.length ? <div className="article-tags">{article.tags.map(tag => <span key={tag.id}>{tag.name}</span>)}</div> : null}
+      {article.featuredImage ? <div className="admin-featured-picker-preview"><img src={article.featuredImage.url} alt={article.featuredImage.altText ?? article.title}/></div> : null}
       {takeaways.length ? <section className="admin-preview-takeaways"><h2>Key takeaways</h2><ul>{takeaways.map(item => <li key={item}>{item}</li>)}</ul></section> : null}
       <section className="admin-preview-content">{body.map((paragraph, index) => <p key={index}>{paragraph}</p>)}</section>
       {article.sections.map(section => <section key={section.id} className="admin-preview-content"><h2>{section.heading}</h2>{stringArray(section.paragraphs).map((paragraph, index) => <p key={index}>{paragraph}</p>)}{stringArray(section.bullets).length ? <ul>{stringArray(section.bullets).map(item => <li key={item}>{item}</li>)}</ul> : null}</section>)}
