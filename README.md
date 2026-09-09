@@ -70,6 +70,35 @@ Admin sessions are stored in an HttpOnly, SameSite cookie and signed with `ADMIN
 
 For Docker production, `ADMIN_SESSION_SECRET` is passed into the web container through Compose. Keep the production value outside Git and use a strong random secret.
 
+## Newsletter double opt-in
+The public newsletter form stores signup requests in PostgreSQL as inactive records. An address becomes an active recipient only after the confirmation link is used.
+
+Configure the public URL and optional provider-neutral email delivery webhook:
+
+```text
+NEWSLETTER_PUBLIC_URL="https://kitsuwire.com"
+NEWSLETTER_DELIVERY_WEBHOOK_URL="https://your-delivery-service.example/webhook"
+NEWSLETTER_DELIVERY_WEBHOOK_SECRET="use-a-random-signing-secret"
+NEWSLETTER_TOKEN_SECRET="use-a-long-random-secret-at-least-32-characters"
+```
+
+If `NEWSLETTER_DELIVERY_WEBHOOK_URL` is empty, signup requests are still stored as `Pending`, but no confirmation email is sent and those addresses are not exported as active recipients.
+
+The delivery webhook receives JSON shaped like:
+
+```json
+{
+  "event": "newsletter.confirmation_requested",
+  "brand": "KitsuWire",
+  "to": "reader@example.com",
+  "confirmationUrl": "https://kitsuwire.com/newsletter/confirm?token=..."
+}
+```
+
+When `NEWSLETTER_DELIVERY_WEBHOOK_SECRET` is configured, KitsuWire signs the exact JSON request body with HMAC-SHA256 in the `x-kitsuwire-signature` header.
+
+Newsletter management is available at `/admin/newsletter`, including Pending/Active/Unsubscribed status, resend confirmation, unsubscribe, permanent deletion and protected CSV export of confirmed active recipients.
+
 ## Full Docker stack
 ```bash
 docker compose up --build
@@ -87,7 +116,7 @@ Do not run the legacy import repeatedly after content is being edited through th
 ## Content architecture
 PostgreSQL is the source of truth for published content. The current `content/articles` JSON files are retained temporarily as migration/backup input while Phase 2 is completed.
 
-The database supports articles, categories, tags, authors, structured sections, FAQs, sources, article revisions, media references, users/roles, publishing status, site settings and newsletter subscribers.
+The database supports articles, categories, tags, authors, structured sections, FAQs, sources, article revisions, media references, users/roles, publishing status, site settings, first-party page views and newsletter subscribers.
 
 Publishing states are:
 `IDEA -> DRAFT -> REVIEW -> APPROVED -> SCHEDULED -> PUBLISHED -> ARCHIVED`
