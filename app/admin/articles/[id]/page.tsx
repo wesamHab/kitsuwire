@@ -6,6 +6,7 @@ import { updateArticleAction } from "../actions";
 import { DeleteArticleButton } from "./DeleteArticleButton";
 import { StructuredContentEditor } from "../StructuredContentEditor";
 import { ScheduleFields } from "../ScheduleFields";
+import { FeaturedImagePicker } from "../FeaturedImagePicker";
 
 export const metadata = { title: "Edit Article", robots: { index: false, follow: false } };
 
@@ -18,9 +19,10 @@ export default async function EditArticlePage({ params, searchParams }: { params
   if (!session) redirect("/admin/login");
   const { id } = await params;
   const { saved } = await searchParams;
-  const [article, categories] = await Promise.all([
-    db.article.findUnique({ where: { id }, include: { category: true, tags: true, sections: { orderBy: { position: "asc" } }, faq: { orderBy: { position: "asc" } }, sources: { orderBy: { position: "asc" } } } }),
+  const [article, categories, media] = await Promise.all([
+    db.article.findUnique({ where: { id }, include: { category: true, tags: true, featuredImage: true, sections: { orderBy: { position: "asc" } }, faq: { orderBy: { position: "asc" } }, sources: { orderBy: { position: "asc" } } } }),
     db.category.findMany({ orderBy: { title: "asc" } }),
+    db.media.findMany({ where: { kind: "IMAGE" }, orderBy: { createdAt: "desc" }, take: 30, select: { id: true, url: true, filename: true, altText: true } }),
   ]);
   if (!article) notFound();
 
@@ -40,6 +42,7 @@ export default async function EditArticlePage({ params, searchParams }: { params
         <label>Title<input name="title" required defaultValue={article.title}/></label>
         <label>Slug<input name="slug" required defaultValue={article.slug}/></label>
         <label>Excerpt<textarea name="excerpt" rows={3} defaultValue={article.excerpt}/></label>
+        <FeaturedImagePicker media={media} initialId={article.featuredImageId ?? ""}/>
         <label>Opening body<textarea name="body" rows={10} defaultValue={jsonLines(article.body)} placeholder="One paragraph per line"/></label>
         <label>Key takeaways<textarea name="keyTakeaways" rows={6} defaultValue={jsonLines(article.keyTakeaways)} placeholder="One takeaway per line"/></label>
         <div className="admin-editor-grid"><label>SEO title<input name="seoTitle" defaultValue={article.seoTitle ?? ""}/></label><label>Reading time<input name="readingTime" defaultValue={article.readingTime}/></label></div>
