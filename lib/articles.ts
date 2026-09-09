@@ -42,6 +42,11 @@ export const categoryMeta: Record<Category, { title: string; description: string
   markets: { title: "Markets", description: "Investing, money and the economic forces behind technological change." },
 };
 
+export const getCategoryMeta = cache(async (category: Category) => {
+  const record = await db.category.findUnique({ where: { slug: category }, select: { label: true, title: true, description: true } });
+  return record ?? { label: categoryMeta[category].title, ...categoryMeta[category] };
+});
+
 const articleInclude = {
   category: true,
   author: true,
