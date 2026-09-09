@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Activity, BarChart3, FileText, Image, Search, ServerCog, Settings, Sparkles, Tags, Users, WandSparkles } from "lucide-react";
+import { Activity, BarChart3, FileText, Image, Mail, Search, ServerCog, Settings, Sparkles, Tags, Users, WandSparkles } from "lucide-react";
 import { getAdminSession } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { getAnalyticsOverview } from "@/lib/analytics";
@@ -19,7 +19,7 @@ export default async function AdminDashboard() {
     db.article.count({ where: { status: "DRAFT" } }),
     db.article.count({ where: { status: "SCHEDULED" } }),
     db.article.count({ where: { status: "REVIEW" } }),
-    db.newsletterSubscriber.count({ where: { isActive: true } }),
+    db.newsletterSubscriber.count({ where: { isActive: true, confirmedAt: { not: null } } }),
     getFoxCursorEnabled(),
     db.article.findMany({ orderBy: { updatedAt: "desc" }, take: 6, include: { category: true } }),
     getAnalyticsOverview(),
@@ -33,6 +33,7 @@ export default async function AdminDashboard() {
         <Link href="/admin/articles"><FileText size={17}/> Articles</Link>
         <Link href="/admin/media"><Image size={17}/> Media</Link>
         <Link href="/admin/taxonomy"><Tags size={17}/> Categories & Tags</Link>
+        <Link href="/admin/newsletter"><Mail size={17}/> Newsletter</Link>
         <Link href="/admin/analytics"><BarChart3 size={17}/> Analytics</Link>
         <Link href="/admin/seo"><Search size={17}/> SEO</Link>
         <Link href="/admin/automation"><WandSparkles size={17}/> Automation</Link>
@@ -66,7 +67,7 @@ export default async function AdminDashboard() {
           </div>
         </section>
 
-        <section className="admin-panel admin-mini-panel"><Users/><div><span>Newsletter subscribers</span><strong>{subscribers}</strong></div></section>
+        <Link href="/admin/newsletter" className="admin-panel admin-mini-panel admin-mini-link"><Users/><div><span>Newsletter subscribers</span><strong>{subscribers}</strong><small>Confirmed active recipients</small></div></Link>
         <Link href="/admin/analytics" className="admin-panel admin-mini-panel admin-mini-link"><BarChart3/><div><span>Page views · 30 days</span><strong>{analytics.views30d}</strong><small>{analytics.views7d} in the last 7 days</small></div></Link>
       </div>
     </section>
