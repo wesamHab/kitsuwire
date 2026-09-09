@@ -3,16 +3,39 @@
 import { useEffect, useRef, useState } from "react";
 import { KitsuFox } from "./KitsuFox";
 
+const STORAGE_KEY = "kitsuwire-fox-cursor";
+const EVENT_NAME = "kitsuwire:fox-cursor";
+
 export function KitsuCursor({ enabled = true }: { enabled?: boolean }) {
   const cursorRef = useRef<HTMLDivElement>(null);
   const target = useRef({ x: -100, y: -100 });
   const current = useRef({ x: -100, y: -100 });
+  const [visitorEnabled, setVisitorEnabled] = useState(enabled);
   const [interactive, setInteractive] = useState(false);
   const [pressed, setPressed] = useState(false);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (!enabled || !window.matchMedia("(pointer: fine)").matches) return;
+    if (!enabled) {
+      setVisitorEnabled(false);
+      return;
+    }
+    try { setVisitorEnabled(localStorage.getItem(STORAGE_KEY) !== "off"); }
+    catch { setVisitorEnabled(true); }
+    const onPreference = (event: Event) => {
+      const detail = (event as CustomEvent<{ enabled: boolean }>).detail;
+      if (typeof detail?.enabled === "boolean") setVisitorEnabled(detail.enabled);
+    };
+    window.addEventListener(EVENT_NAME, onPreference);
+    return () => window.removeEventListener(EVENT_NAME, onPreference);
+  }, [enabled]);
+
+  useEffect(() => {
+    if (!visitorEnabled || !window.matchMedia("(pointer: fine)").matches) {
+      delete document.documentElement.dataset.kitsuCursor;
+      setVisible(false);
+      return;
+    }
     let frame = 0;
     document.documentElement.dataset.kitsuCursor = "enabled";
 
@@ -49,8 +72,8 @@ export function KitsuCursor({ enabled = true }: { enabled?: boolean }) {
       document.documentElement.removeEventListener("mouseleave", leave);
       document.documentElement.removeEventListener("mouseenter", enter);
     };
-  }, [enabled]);
+  }, [visitorEnabled]);
 
   if (!enabled) return null;
-  return <div ref={cursorRef} className={`kitsu-cursor${visible ? " is-visible" : ""}${interactive ? " is-interactive" : ""}${pressed ? " is-pressed" : ""}`} aria-hidden="true"><KitsuFox mood={interactive ? "happy" : "calm"} /></div>;
+  return <div ref={cursorRef} className={`kitsu-cursor${visible && visitorEnabled ? " is-visible" : ""}${interactive ? " is-interactive" : ""}${pressed ? " is-pressed" : ""}`} aria-hidden="true"><KitsuFox mood={interactive ? "happy" : "calm"} /></div>;
 }
