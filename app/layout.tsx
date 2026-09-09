@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { KitsuCursor } from "@/components/KitsuCursor";
 import { getFoxCursorEnabled } from "@/lib/site-settings";
 import "./globals.css";
@@ -33,7 +34,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="en" suppressHydrationWarning>
       <head suppressHydrationWarning><script id="kitsuwire-theme-init" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
-      <body suppressHydrationWarning>{children}<KitsuCursor enabled={foxCursorEnabled} /></body>
+      <body suppressHydrationWarning>{children}<AnalyticsTracker/><KitsuCursor enabled={foxCursorEnabled} /></body>
     </html>
   );
 }
