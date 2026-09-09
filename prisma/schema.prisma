@@ -185,3 +185,16 @@ model NewsletterSubscriber {
   subscribedAt   DateTime  @default(now())
   unsubscribedAt DateTime?
 }
+
+model PageView {
+  id           String   @id @default(cuid())
+  path         String
+  articleSlug  String?
+  referrerHost String?
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([articleSlug, createdAt])
+  @@index([path, createdAt])
+  @@index([referrerHost, createdAt])
+}
