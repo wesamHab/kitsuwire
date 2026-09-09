@@ -44,6 +44,32 @@ Open http://localhost:3000.
 
 PostgreSQL is exposed only on `127.0.0.1:5432` for local development. The web container communicates with the database through the internal Docker network.
 
+## Admin setup
+Set these values in `.env` before creating the first admin account:
+
+```text
+ADMIN_EMAIL="your-admin-email@example.com"
+ADMIN_NAME="KitsuWire Admin"
+ADMIN_PASSWORD="use-a-strong-password-with-at-least-12-characters"
+ADMIN_SESSION_SECRET="use-a-long-random-secret-with-at-least-32-characters"
+```
+
+Create or reset the admin account:
+
+```bash
+npm run admin:create
+```
+
+Then open:
+
+```text
+http://localhost:3000/admin/login
+```
+
+Admin sessions are stored in an HttpOnly, SameSite cookie and signed with `ADMIN_SESSION_SECRET`. The public fox cursor can be enabled or disabled from the Admin Dashboard or `/admin/settings`; that preference is stored in PostgreSQL and applies globally to site visitors.
+
+For Docker production, `ADMIN_SESSION_SECRET` is passed into the web container through Compose. Keep the production value outside Git and use a strong random secret.
+
 ## Full Docker stack
 ```bash
 docker compose up --build
@@ -61,7 +87,7 @@ Do not run the legacy import repeatedly after content is being edited through th
 ## Content architecture
 PostgreSQL is the source of truth for published content. The current `content/articles` JSON files are retained temporarily as migration/backup input while Phase 2 is completed.
 
-The database supports articles, categories, tags, authors, structured sections, FAQs, sources, article revisions, media references, users/roles, publishing status and newsletter subscribers.
+The database supports articles, categories, tags, authors, structured sections, FAQs, sources, article revisions, media references, users/roles, publishing status, site settings and newsletter subscribers.
 
 Publishing states are:
 `IDEA -> DRAFT -> REVIEW -> APPROVED -> SCHEDULED -> PUBLISHED -> ARCHIVED`
