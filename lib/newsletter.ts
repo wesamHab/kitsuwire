@@ -3,6 +3,7 @@ import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypt
 import { db } from "@/lib/db";
 
 const RESEND_COOLDOWN_MS = 2 * 60 * 1000;
+const CONFIRMATION_TTL_MS = 48 * 60 * 60 * 1000;
 
 export type NewsletterDeliveryResult = { configured: boolean; delivered: boolean };
 
@@ -99,7 +100,12 @@ export async function confirmNewsletterToken(rawToken: string) {
   if (!rawToken || rawToken.length > 200) return false;
   const hash = tokenHash(rawToken);
   const subscriber = await db.newsletterSubscriber.findUnique({ where: { confirmationTokenHash: hash } });
-  if (!subscriber) return false;
+  if (!subscriber || !subscriber.lastConfirmationRequestedAt) return false;
+  const age = Date.now() - subscriber.lastConfirmationRequestedAt.getTime();
+  if (age < 0 || age > CONFIRMATION_TTL_MS) {
+    await db.newsletterSubscriber.update({ where: { id: subscriber.id }, data: { confirmationTokenHash: null } });
+    return false;
+  }
   await db.newsletterSubscriber.update({
     where: { id: subscriber.id },
     data: {
