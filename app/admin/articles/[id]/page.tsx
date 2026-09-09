@@ -13,11 +13,6 @@ function jsonLines(value: unknown) {
   return Array.isArray(value) ? value.filter(item => typeof item === "string").join("\n") : "";
 }
 
-function localDateTime(value: Date | null) {
-  if (!value) return "";
-  return value.toISOString().slice(0, 16);
-}
-
 export default async function EditArticlePage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string }> }) {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
@@ -54,7 +49,7 @@ export default async function EditArticlePage({ params, searchParams }: { params
       </section>
       <aside className="admin-editor-side admin-panel">
         <label>Status<select name="status" defaultValue={article.status}><option>IDEA</option><option>DRAFT</option><option>REVIEW</option><option>APPROVED</option><option>SCHEDULED</option><option>PUBLISHED</option><option>ARCHIVED</option></select></label>
-        <label>Schedule publication<ScheduleFields defaultValue={localDateTime(article.scheduledAt)}/><small>Used when status is SCHEDULED.</small></label>
+        <label>Schedule publication<ScheduleFields defaultIso={article.scheduledAt?.toISOString() ?? ""}/><small>Used when status is SCHEDULED.</small></label>
         <label>Category<select name="categoryId" defaultValue={article.categoryId}>{categories.map(category=><option value={category.id} key={category.id}>{category.title}</option>)}</select></label>
         <label>Tone<select name="tone" defaultValue={article.tone}><option value="green">Green</option><option value="blue">Blue</option><option value="violet">Violet</option><option value="orange">Orange</option></select></label>
         <label className="admin-check"><input type="checkbox" name="featured" defaultChecked={article.featured}/> Featured article</label>
