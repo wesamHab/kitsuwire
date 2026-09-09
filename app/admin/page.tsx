@@ -3,16 +3,18 @@ import { redirect } from "next/navigation";
 import { Activity, BarChart3, FileText, Image, Search, Settings, Sparkles, Users, WandSparkles } from "lucide-react";
 import { getAdminSession } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
+import { getAnalyticsOverview } from "@/lib/analytics";
 import { getFoxCursorEnabled } from "@/lib/site-settings";
 import { setFoxCursorAction } from "./actions";
 
 export const metadata = { title: "Admin", robots: { index: false, follow: false } };
+export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
 
-  const [published, drafts, scheduled, review, subscribers, foxCursorEnabled, recentArticles] = await Promise.all([
+  const [published, drafts, scheduled, review, subscribers, foxCursorEnabled, recentArticles, analytics] = await Promise.all([
     db.article.count({ where: { status: "PUBLISHED" } }),
     db.article.count({ where: { status: "DRAFT" } }),
     db.article.count({ where: { status: "SCHEDULED" } }),
@@ -20,6 +22,7 @@ export default async function AdminDashboard() {
     db.newsletterSubscriber.count({ where: { isActive: true } }),
     getFoxCursorEnabled(),
     db.article.findMany({ orderBy: { updatedAt: "desc" }, take: 6, include: { category: true } }),
+    getAnalyticsOverview(),
   ]);
 
   return <main className="admin-shell">
@@ -62,7 +65,7 @@ export default async function AdminDashboard() {
         </section>
 
         <section className="admin-panel admin-mini-panel"><Users/><div><span>Newsletter subscribers</span><strong>{subscribers}</strong></div></section>
-        <section className="admin-panel admin-mini-panel"><BarChart3/><div><span>Analytics</span><strong>Coming next</strong></div></section>
+        <Link href="/admin/analytics" className="admin-panel admin-mini-panel admin-mini-link"><BarChart3/><div><span>Page views · 30 days</span><strong>{analytics.views30d}</strong><small>{analytics.views7d} in the last 7 days</small></div></Link>
       </div>
     </section>
   </main>;
