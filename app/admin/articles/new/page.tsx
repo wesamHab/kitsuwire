@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { createArticleAction } from "../actions";
 import { StructuredContentEditor } from "../StructuredContentEditor";
 import { ScheduleFields } from "../ScheduleFields";
+import { FeaturedImagePicker } from "../FeaturedImagePicker";
 
 export const metadata = { title: "New Article", robots: { index: false, follow: false } };
 
@@ -12,7 +13,10 @@ export default async function NewArticlePage({ searchParams }: { searchParams: P
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
   const { error } = await searchParams;
-  const categories = await db.category.findMany({ orderBy: { title: "asc" } });
+  const [categories, media] = await Promise.all([
+    db.category.findMany({ orderBy: { title: "asc" } }),
+    db.media.findMany({ where: { kind: "IMAGE" }, orderBy: { createdAt: "desc" }, take: 30, select: { id: true, url: true, filename: true, altText: true } }),
+  ]);
 
   return <main className="admin-subpage admin-editor-page">
     <header><div><Link href="/admin/articles">← Articles</Link><p className="admin-kicker">CONTENT / NEW</p><h1>Create article</h1></div></header>
@@ -24,6 +28,7 @@ export default async function NewArticlePage({ searchParams }: { searchParams: P
         <label>Title<input name="title" required placeholder="Article title"/></label>
         <label>Slug<input name="slug" placeholder="auto-generated-from-title"/></label>
         <label>Excerpt<textarea name="excerpt" rows={3} placeholder="Short summary shown on cards and search results"/></label>
+        <FeaturedImagePicker media={media}/>
         <label>Opening body<textarea name="body" rows={10} placeholder="One paragraph per line"/></label>
         <label>Key takeaways<textarea name="keyTakeaways" rows={6} placeholder="One takeaway per line"/></label>
         <div className="admin-editor-grid"><label>SEO title<input name="seoTitle"/></label><label>Reading time<input name="readingTime" defaultValue="5 min"/></label></div>
