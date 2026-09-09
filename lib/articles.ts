@@ -55,9 +55,7 @@ function asStringArray(value: Prisma.JsonValue | null | undefined): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 }
 
-function isCategory(value: string): value is Category {
-  return categories.includes(value as Category);
-}
+function isCategory(value: string): value is Category { return categories.includes(value as Category); }
 
 function toArticle(record: DbArticle): Article {
   if (!isCategory(record.category.slug)) throw new Error(`Unknown article category '${record.category.slug}' for ${record.slug}`);
@@ -67,7 +65,7 @@ function toArticle(record: DbArticle): Article {
     categoryLabel: record.category.label,
     title: record.title,
     excerpt: record.excerpt,
-    publishedAt: (record.publishedAt ?? record.createdAt).toISOString(),
+    publishedAt: (record.publishedAt ?? record.scheduledAt ?? record.createdAt).toISOString(),
     updatedAt: record.updatedAt.toISOString(),
     readingTime: record.readingTime,
     tone: record.tone as ArticleTone,
@@ -78,58 +76,39 @@ function toArticle(record: DbArticle): Article {
     author: record.author?.name ?? undefined,
     keyTakeaways: asStringArray(record.keyTakeaways),
     body: asStringArray(record.body),
-    sections: record.sections.map((section) => ({
-      heading: section.heading,
-      paragraphs: asStringArray(section.paragraphs),
-      bullets: asStringArray(section.bullets),
-    })),
+    sections: record.sections.map((section) => ({ heading: section.heading, paragraphs: asStringArray(section.paragraphs), bullets: asStringArray(section.bullets) })),
     faq: record.faq.map((item) => ({ question: item.question, answer: item.answer })),
     sources: record.sources.map((item) => ({ label: item.label, url: item.url })),
   };
 }
 
-const publishedWhere: Prisma.ArticleWhereInput = {
-  status: ArticleStatus.PUBLISHED,
-  publishedAt: { lte: new Date() },
-};
+function publicWhere(now = new Date()): Prisma.ArticleWhereInput {
+  return {
+    OR: [
+      { status: ArticleStatus.PUBLISHED, publishedAt: { lte: now } },
+      { status: ArticleStatus.SCHEDULED, scheduledAt: { lte: now } },
+    ],
+  };
+}
 
 export const getAllArticles = cache(async (): Promise<Article[]> => {
-  const records = await db.article.findMany({
-    where: publishedWhere,
-    include: articleInclude,
-    orderBy: { publishedAt: "desc" },
-  });
-  return records.map(toArticle);
+  const records = await db.article.findMany({ where: publicWhere(), include: articleInclude, orderBy: [{ publishedAt: "desc" }, { scheduledAt: "desc" }] });
+  return records.map(toArticle).sort((a,b) => b.publishedAt.localeCompare(a.publishedAt));
 });
 
 export const getArticle = cache(async (slug: string): Promise<Article | undefined> => {
-  const record = await db.article.findFirst({
-    where: { ...publishedWhere, slug },
-    include: articleInclude,
-  });
+  const record = await db.article.findFirst({ where: { AND: [publicWhere(), { slug }] }, include: articleInclude });
   return record ? toArticle(record) : undefined;
 });
 
 export const getArticlesByCategory = cache(async (category: Category): Promise<Article[]> => {
-  const records = await db.article.findMany({
-    where: { ...publishedWhere, category: { slug: category } },
-    include: articleInclude,
-    orderBy: { publishedAt: "desc" },
-  });
-  return records.map(toArticle);
+  const records = await db.article.findMany({ where: { AND: [publicWhere(), { category: { slug: category } }] }, include: articleInclude });
+  return records.map(toArticle).sort((a,b) => b.publishedAt.localeCompare(a.publishedAt));
 });
 
 export const getFeaturedArticle = cache(async (): Promise<Article | undefined> => {
-  const record = await db.article.findFirst({
-    where: { ...publishedWhere, featured: true },
-    include: articleInclude,
-    orderBy: { publishedAt: "desc" },
-  }) ?? await db.article.findFirst({
-    where: publishedWhere,
-    include: articleInclude,
-    orderBy: { publishedAt: "desc" },
-  });
-  return record ? toArticle(record) : undefined;
+  const all = await getAllArticles();
+  return all.find(article => article.featured) ?? all[0];
 });
 
 function normalizeTag(tag: string) { return tag.trim().toLowerCase(); }
@@ -137,16 +116,10 @@ function normalizeTag(tag: string) { return tag.trim().toLowerCase(); }
 export async function getRelatedArticles(article: Article, limit = 4): Promise<Article[]> {
   const sourceTags = new Set((article.tags ?? []).map(normalizeTag));
   const all = await getAllArticles();
-  return all
-    .filter((candidate) => candidate.slug !== article.slug)
-    .map((candidate) => {
-      const sharedTags = (candidate.tags ?? []).map(normalizeTag).filter((tag) => sourceTags.has(tag)).length;
-      const sameCategory = candidate.category === article.category ? 2 : 0;
-      const featuredBonus = candidate.featured ? 0.25 : 0;
-      return { candidate, score: sharedTags * 3 + sameCategory + featuredBonus };
-    })
-    .filter(({ score }) => score > 0)
-    .sort((a, b) => b.score - a.score || b.candidate.publishedAt.localeCompare(a.candidate.publishedAt))
-    .slice(0, limit)
-    .map(({ candidate }) => candidate);
+  return all.filter(candidate => candidate.slug !== article.slug).map(candidate => {
+    const sharedTags = (candidate.tags ?? []).map(normalizeTag).filter(tag => sourceTags.has(tag)).length;
+    const sameCategory = candidate.category === article.category ? 2 : 0;
+    const featuredBonus = candidate.featured ? 0.25 : 0;
+    return { candidate, score: sharedTags * 3 + sameCategory + featuredBonus };
+  }).filter(({ score }) => score > 0).sort((a,b) => b.score - a.score || b.candidate.publishedAt.localeCompare(a.candidate.publishedAt)).slice(0, limit).map(({ candidate }) => candidate);
 }
