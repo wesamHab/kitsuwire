@@ -117,7 +117,7 @@ export const getArticlesByCategory = cache(async (category: Category): Promise<A
 
 export const getFeaturedArticle = cache(async (): Promise<Article | undefined> => {
   const all = await getAllArticles();
-  return all.find(article => article.featureed) ?? all[0];
+  return all.find(article => article.featured) ?? all[0];
 });
 
 function normalizeTag(tag: string) { return tag.trim().toLowerCase(); }
