@@ -19,6 +19,7 @@ export default async function AdminSystemPage() {
   if (!session) redirect("/admin/login");
   const health = await getSystemHealth();
   const healthyConfig = health.config.databaseUrl && health.config.adminSessionSecret && health.config.newsletterTokenSecret;
+  const newsletterReady = health.config.newsletterDeliveryMode !== "Not connected";
 
   return <main className="admin-subpage">
     <header><div><Link href="/admin">← Dashboard</Link><p className="admin-kicker">SYSTEM</p><h1>System Health</h1></div><Activity size={24}/></header>
@@ -26,7 +27,7 @@ export default async function AdminSystemPage() {
     <div className="admin-stat-grid">
       <article><span>PostgreSQL</span><strong>{health.database.ok ? "Online" : "Down"}</strong><small>{health.database.latencyMs} ms query latency</small></article>
       <article><span>Web process</span><strong>{uptime(health.runtime.uptimeSeconds)}</strong><small>Current process uptime</small></article>
-      <article><span>Process memory</span><strong>{health.runtime.rssMb} MB</strong><small>{health.runtime.heapUsedMb} MB heap used</small></article>
+      <article><span>Newsletter delivery</span><strong>{health.config.newsletterDeliveryMode}</strong><small>{newsletterReady ? "Confirmation mail enabled" : "Needs provider setup"}</small></article>
       <article><span>Configuration</span><strong>{healthyConfig ? "Ready" : "Check"}</strong><small>Required production secrets</small></article>
     </div>
 
@@ -39,7 +40,7 @@ export default async function AdminSystemPage() {
 
       <section className="admin-panel"><div className="admin-panel-head"><div><p className="admin-kicker">SECURITY & RETENTION</p><h2>Configuration checks</h2></div><ShieldCheck size={20}/></div><div className="admin-health-list"><div><span>Admin session secret</span><strong className={health.config.adminSessionSecret ? "health-good" : "health-bad"}>{health.config.adminSessionSecret ? "Strong enough" : "Missing / too short"}</strong></div><div><span>Newsletter token secret</span><strong className={health.config.newsletterTokenSecret ? "health-good" : "health-bad"}>{health.config.newsletterTokenSecret ? "Ready" : "Missing / too short"}</strong></div><div><span>Analytics retention</span><strong>{health.config.analyticsRetentionDays} days</strong></div><div><span>Media root</span><code>{health.config.mediaRoot}</code></div></div></section>
 
-      <section className="admin-panel"><div className="admin-panel-head"><div><p className="admin-kicker">NEWSLETTER</p><h2>Double opt-in delivery</h2></div><MailCheck size={20}/></div><div className="admin-health-list"><div><span>Confirmation webhook</span><strong className={health.config.newsletterDeliveryWebhook ? "health-good" : "health-warn"}>{health.config.newsletterDeliveryWebhook ? "Connected" : "Not connected"}</strong></div><div><span>Public URL</span><code>{health.config.newsletterPublicUrl}</code></div><div><span>Subscriber storage</span><strong className="health-good">PostgreSQL</strong></div></div><p className="admin-panel-copy">The database workflow is ready even when email delivery is not connected. Pending addresses remain inactive until confirmation.</p></section>
+      <section className="admin-panel"><div className="admin-panel-head"><div><p className="admin-kicker">NEWSLETTER</p><h2>Double opt-in delivery</h2></div><MailCheck size={20}/></div><div className="admin-health-list"><div><span>Active provider</span><strong className={newsletterReady ? "health-good" : "health-warn"}>{health.config.newsletterDeliveryMode}</strong></div><div><span>Brevo API key</span><strong className={health.config.brevoApiKey ? "health-good" : "health-warn"}>{health.config.brevoApiKey ? "Configured" : "Missing"}</strong></div><div><span>Brevo sender</span><strong className={health.config.brevoSender ? "health-good" : "health-warn"}>{health.config.brevoSender ? "Configured" : "Missing"}</strong></div><div><span>Webhook fallback</span><strong>{health.config.newsletterDeliveryWebhook ? "Configured" : "Off"}</strong></div><div><span>Public URL</span><code>{health.config.newsletterPublicUrl}</code></div><div><span>Subscriber storage</span><strong className="health-good">PostgreSQL</strong></div></div><p className="admin-panel-copy">Brevo is preferred when configured. The generic webhook remains available as a provider-neutral fallback.</p></section>
     </div>
 
     <p className="admin-note">Docker container status, Nginx/SSL expiry and off-server backup verification will be connected when the production VPS deployment is wired into the admin system.</p>
