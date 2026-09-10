@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Activity, BarChart3, FileText, Image, Mail, Search, ServerCog, Settings, Sparkles, Tags, Users, WandSparkles } from "lucide-react";
+import { Activity, BarChart3, FileText, Image, Mail, Search, ServerCog, Settings, ShieldCheck, Sparkles, Tags, Users, WandSparkles } from "lucide-react";
 import { getAdminSession } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { getAnalyticsOverview } from "@/lib/analytics";
@@ -38,6 +38,7 @@ export default async function AdminDashboard() {
         <Link href="/admin/seo"><Search size={17}/> SEO</Link>
         <Link href="/admin/automation"><WandSparkles size={17}/> Automation</Link>
         <Link href="/admin/system"><ServerCog size={17}/> System</Link>
+        <Link href="/admin/audit"><ShieldCheck size={17}/> Security Audit</Link>
         <Link href="/admin/settings"><Settings size={17}/> Settings</Link>
       </nav>
       <form action="/api/admin/logout" method="post"><button className="admin-logout" type="submit">Sign out</button></form>
