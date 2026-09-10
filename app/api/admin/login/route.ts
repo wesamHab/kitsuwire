@@ -1,15 +1,41 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { createAdminSession, verifyPassword } from "@/lib/admin-auth";
+import {
+  adminLoginRateLimitKey,
+  checkAdminLoginRateLimit,
+  clearAdminLoginFailures,
+  isTrustedAdminRequest,
+  recordAdminLoginFailure,
+} from "@/lib/admin-security";
+
+function redirectLogin(request: Request, error: string, retryAfterSeconds?: number) {
+  const response = NextResponse.redirect(new URL(`/admin/login?error=${encodeURIComponent(error)}`, request.url), 303);
+  response.headers.set("Cache-Control", "no-store");
+  if (retryAfterSeconds) response.headers.set("Retry-After", String(retryAfterSeconds));
+  return response;
+}
 
 export async function POST(request: Request) {
+  if (!isTrustedAdminRequest(request.headers)) return redirectLogin(request, "request");
+
   const form = await request.formData();
-  const email = String(form.get("email") ?? "").trim().toLowerCase();
-  const password = String(form.get("password") ?? "");
-  const user = await db.user.findUnique({ where: { email } });
-  if (!user || user.role !== "ADMIN" || !user.passwordHash || !verifyPassword(password, user.passwordHash)) {
-    return NextResponse.redirect(new URL("/admin/login?error=1", request.url), 303);
+  const email = String(form.get("email") ?? "").trim().toLowerCase().slice(0, 254);
+  const password = String(form.get("password") ?? "").slice(0, 512);
+  const key = adminLoginRateLimitKey(request.headers, email);
+  const limit = checkAdminLoginRateLimit(key);
+  if (!limit.allowed) return redirectLogin(request, "rate", limit.retryAfterSeconds);
+
+  const user = email ? await db.user.findUnique({ where: { email } }) : null;
+  const valid = Boolean(user && user.role === "ADMIN" && user.passwordHash && verifyPassword(password, user.passwordHash));
+  if (!valid || !user) {
+    recordAdminLoginFailure(key);
+    return redirectLogin(request, "credentials");
   }
+
+  clearAdminLoginFailures(key);
   await createAdminSession(user.id);
-  return NextResponse.redirect(new URL("/admin", request.url), 303);
+  const response = NextResponse.redirect(new URL("/admin", request.url), 303);
+  response.headers.set("Cache-Control", "no-store");
+  return response;
 }
