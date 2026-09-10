@@ -12,7 +12,6 @@ import "./editorial.css";
 import "./theme.css";
 import "./reference.css";
 import "./home-redesign.css";
-import "./home-polish.css";
 import "./hero-image.css";
 import "./article-pro.css";
 import "./utility.css";
