@@ -1,0 +1,82 @@
+/* Mobile navigation must stay isolated above the page content. */
+@media (max-width: 900px) {
+  .mobile-nav-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 2147483600 !important;
+  }
+
+  .mobile-nav-drawer {
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: auto !important;
+    z-index: 2147483601 !important;
+    width: min(88vw, 390px) !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    padding: 18px 20px max(18px, env(safe-area-inset-bottom)) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    background: var(--theme-bg, #f6f6f2) !important;
+    isolation: isolate;
+  }
+
+  .mobile-nav-drawer nav {
+    display: grid !important;
+    margin-top: 10px !important;
+    flex: 0 0 auto;
+  }
+
+  .mobile-nav-drawer nav a {
+    position: static !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    min-height: 52px;
+    padding: 11px 4px !important;
+    font-size: clamp(18px, 5vw, 22px) !important;
+    line-height: 1.15 !important;
+    white-space: nowrap;
+  }
+
+  .mobile-nav-actions {
+    margin-top: 24px !important;
+    padding-top: 0 !important;
+    flex: 0 0 auto;
+  }
+
+  .mobile-nav-drawer > p {
+    flex: 0 0 auto;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Keep hero/content from ever painting above the open navigation. */
+  .reference-hero,
+  .reference-hero-copy,
+  .reference-hero .hero-signal,
+  .reference-home section {
+    z-index: auto;
+  }
+}
+
+@media (max-width: 580px) {
+  .mobile-nav-drawer {
+    width: calc(100vw - 28px) !important;
+    max-width: 390px !important;
+  }
+
+  .mobile-nav-head {
+    position: sticky;
+    top: -18px;
+    z-index: 2;
+    padding-top: 18px;
+    background: var(--theme-bg, #f6f6f2);
+  }
+
+  .mobile-nav-drawer nav a {
+    min-height: 50px;
+    font-size: 20px !important;
+  }
+}
