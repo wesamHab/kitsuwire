@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { KitsuCursor } from "@/components/KitsuCursor";
+import { PrivacyConsent } from "@/components/PrivacyConsent";
 import { getFoxCursorEnabled } from "@/lib/site-settings";
 import "./globals.css";
 import "./brand.css";
@@ -16,6 +17,7 @@ import "./seo-admin.css";
 import "./taxonomy-admin.css";
 import "./system-admin.css";
 import "./newsletter-admin.css";
+import "./privacy-consent.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://kitsuwire.com"),
@@ -38,7 +40,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="en" suppressHydrationWarning>
       <head suppressHydrationWarning><script id="kitsuwire-theme-init" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
-      <body suppressHydrationWarning>{children}<AnalyticsTracker/><KitsuCursor enabled={foxCursorEnabled} /></body>
+      <body suppressHydrationWarning>{children}<PrivacyConsent/><AnalyticsTracker/><KitsuCursor enabled={foxCursorEnabled} /></body>
     </html>
   );
 }
