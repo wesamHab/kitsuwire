@@ -46,7 +46,7 @@ export default async function RootLayout({children}:{children:React.ReactNode}){
     <Script id="website-jsonld" type="application/ld+json" strategy="afterInteractive">{JSON.stringify(websiteJsonLd)}</Script>
     <Script id="organization-jsonld" type="application/ld+json" strategy="afterInteractive">{JSON.stringify(organizationJsonLd)}</Script>
     <AdSenseLoader clientId={adsenseClient}/>
-    <KitsuCursor globalEnabled={foxCursorEnabled}/>
+    <KitsuCursor enabled={foxCursorEnabled}/>
     <AnalyticsTracker/>
     {children}
     <PrivacyConsent/>
