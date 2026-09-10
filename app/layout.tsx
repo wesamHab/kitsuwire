@@ -13,6 +13,7 @@ import "./theme.css";
 import "./reference.css";
 import "./home-redesign.css";
 import "./home-polish.css";
+import "./hero-image.css";
 import "./article-pro.css";
 import "./utility.css";
 import "./admin.css";
@@ -30,73 +31,27 @@ const SOCIAL_IMAGE = `${SITE}/opengraph-image`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
-  applicationName: "KitsuWire",
-  title: { default: "KitsuWire — AI, Technology, Software & Markets", template: "%s | KitsuWire" },
-  description: "KitsuWire makes the signals shaping AI, technology, software and markets easier to understand.",
-  keywords: ["AI", "artificial intelligence", "technology", "software", "cloud", "DevOps", "markets", "finance"],
-  authors: [{ name: "KitsuWire Editorial", url: SITE }],
-  creator: "KitsuWire",
-  publisher: "KitsuWire",
-  alternates: { canonical: SITE },
-  icons: { icon: "/kitsuwire-mark.svg", shortcut: "/kitsuwire-mark.svg", apple: "/kitsuwire-mark.svg" },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
-  },
-  openGraph: {
-    title: "KitsuWire — AI, Technology, Software & Markets",
-    description: "The signal behind what's next in AI, technology, software and markets.",
-    url: SITE,
-    siteName: "KitsuWire",
-    locale: "en_US",
-    type: "website",
-    images: [{ url: SOCIAL_IMAGE, width: 1200, height: 630, alt: "KitsuWire — AI, Technology, Software & Markets" }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "KitsuWire — AI, Technology, Software & Markets",
-    description: "Clear intelligence on AI, technology, software and markets.",
-    images: [SOCIAL_IMAGE],
-  },
+  title: { default: "KitsuWire — Tech News. Clearer.", template: "%s | KitsuWire" },
+  description: "Clear, in-depth insights on AI, technology, software, and markets.",
+  openGraph: { type: "website", siteName: "KitsuWire", url: SITE, title: "KitsuWire — Tech News. Clearer.", description: "Clear, in-depth insights on AI, technology, software, and markets.", images: [{ url: SOCIAL_IMAGE, width: 1200, height: 630, alt: "KitsuWire" }] },
+  twitter: { card: "summary_large_image", title: "KitsuWire — Tech News. Clearer.", description: "Clear, in-depth insights on AI, technology, software, and markets.", images: [SOCIAL_IMAGE] },
 };
 
-const themeScript = `(function(){try{var saved=localStorage.getItem('kitsuwire-theme');var theme=saved==='light'||saved==='dark'?saved:(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=theme;}catch(e){document.documentElement.dataset.theme='light';}})();`;
+const themeScript = `(function(){try{var s=localStorage.getItem('kitsuwire_theme');var t=s==='dark'||s==='light'?s:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t;}catch(e){}})();`;
 
-const websiteSchema = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: "KitsuWire",
-  url: SITE,
-  description: "Clear intelligence on AI, technology, software and markets.",
-  inLanguage: "en",
-  publisher: { "@type": "Organization", name: "KitsuWire", url: SITE },
-  potentialAction: {
-    "@type": "SearchAction",
-    target: { "@type": "EntryPoint", urlTemplate: `${SITE}/search?q={search_term_string}` },
-    "query-input": "required name=search_term_string",
-  },
-};
-
-const organizationSchema = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "KitsuWire",
-  url: SITE,
-  logo: `${SITE}/kitsuwire-mark.svg`,
-};
-
-export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const foxCursorEnabled = await getFoxCursorEnabled();
-  const adsenseClient = process.env.ADSENSE_CLIENT?.trim() || null;
-  return (
-    <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
-      <body suppressHydrationWarning>
-        <Script id="kitsuwire-theme-init" strategy="beforeInteractive">{themeScript}</Script>
-        <Script id="kitsuwire-website-schema" type="application/ld+json" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
-        <Script id="kitsuwire-organization-schema" type="application/ld+json" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
-        {children}<PrivacyConsent/><AnalyticsTracker/><AdSenseLoader clientId={adsenseClient}/><KitsuCursor enabled={foxCursorEnabled} />
-      </body>
-    </html>
-  );
+export default async function RootLayout({children}:{children:React.ReactNode}){
+  const foxCursorEnabled=await getFoxCursorEnabled();
+  const adsenseClient=process.env.ADSENSE_CLIENT?.trim()||"";
+  const websiteJsonLd={"@context":"https://schema.org","@type":"WebSite",name:"KitsuWire",url:SITE,potentialAction:{"@type":"SearchAction",target:`${SITE}/search?q={search_term_string}`,"query-input":"required name=search_term_string"}};
+  const organizationJsonLd={"@context":"https://schema.org","@type":"Organization",name:"KitsuWire",url:SITE,logo:`${SITE}/opengraph-image`};
+  return <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth"><body>
+    <Script id="theme-init" strategy="beforeInteractive">{themeScript}</Script>
+    <Script id="website-jsonld" type="application/ld+json" strategy="afterInteractive">{JSON.stringify(websiteJsonLd)}</Script>
+    <Script id="organization-jsonld" type="application/ld+json" strategy="afterInteractive">{JSON.stringify(organizationJsonLd)}</Script>
+    <AdSenseLoader clientId={adsenseClient}/>
+    <KitsuCursor globalEnabled={foxCursorEnabled}/>
+    <AnalyticsTracker/>
+    {children}
+    <PrivacyConsent/>
+  </body></html>;
 }
