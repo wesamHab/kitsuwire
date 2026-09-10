@@ -1,0 +1,82 @@
+name: kitsuwire
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: kitsuwire
+      POSTGRES_USER: kitsuwire
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - kitsuwire_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kitsuwire -d kitsuwire"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - backend
+
+  migrate:
+    build:
+      context: .
+      target: dbtool
+    environment:
+      DATABASE_URL: postgresql://kitsuwire:${POSTGRES_PASSWORD}@db:5432/kitsuwire?schema=public
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - backend
+
+  web:
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://kitsuwire:${POSTGRES_PASSWORD}@db:5432/kitsuwire?schema=public
+      ADMIN_SESSION_SECRET: ${ADMIN_SESSION_SECRET:?ADMIN_SESSION_SECRET is required}
+      MEDIA_ROOT: /app/data/uploads
+      NEWSLETTER_PUBLIC_URL: ${NEWSLETTER_PUBLIC_URL:-https://kitsuwire.com}
+      NEWSLETTER_TOKEN_SECRET: ${NEWSLETTER_TOKEN_SECRET:?NEWSLETTER_TOKEN_SECRET is required}
+      BREVO_API_KEY: ${BREVO_API_KEY:-}
+      BREVO_SENDER_EMAIL: ${BREVO_SENDER_EMAIL:-newsletter@kitsuwire.com}
+      BREVO_SENDER_NAME: ${BREVO_SENDER_NAME:-KitsuWire}
+      BREVO_REPLY_TO_EMAIL: ${BREVO_REPLY_TO_EMAIL:-}
+      NEWSLETTER_DELIVERY_WEBHOOK_URL: ${NEWSLETTER_DELIVERY_WEBHOOK_URL:-}
+      NEWSLETTER_DELIVERY_WEBHOOK_SECRET: ${NEWSLETTER_DELIVERY_WEBHOOK_SECRET:-}
+      NEXT_PUBLIC_ADSENSE_CLIENT: ${NEXT_PUBLIC_ADSENSE_CLIENT:-}
+      ANALYTICS_RETENTION_DAYS: ${ANALYTICS_RETENTION_DAYS:-180}
+    volumes:
+      - kitsuwire_media_data:/app/data/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    stop_grace_period: 20s
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  kitsuwire_postgres_data:
+    name: kitsuwire_postgres_data
+  kitsuwire_media_data:
+    name: kitsuwire_media_data
