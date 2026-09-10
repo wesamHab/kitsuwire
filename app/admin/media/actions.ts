@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { writeAdminAudit } from "@/lib/admin-audit";
 import { getAdminSession } from "@/lib/admin-auth";
 import { requireTrustedAdminMutation } from "@/lib/admin-security";
 import { db } from "@/lib/db";
@@ -29,6 +30,7 @@ export async function deleteMediaAction(formData: FormData) {
   }
 
   await db.media.delete({ where: { id } });
+  await writeAdminAudit(session, { action: "media.delete", entityType: "Media", entityId: id, summary: `Deleted media: ${media.filename}`, metadata: { kind: media.kind, url: media.url } });
   revalidatePath("/admin/media");
   redirect("/admin/media?deleted=1");
 }
