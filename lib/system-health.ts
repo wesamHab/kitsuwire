@@ -1,6 +1,7 @@
 import "server-only";
 import { mkdir, statfs } from "node:fs/promises";
 import { db } from "@/lib/db";
+import { getLegalOperator } from "@/lib/legal";
 import { mediaRoot } from "@/lib/media-storage";
 
 function mb(bytes: number) { return Math.round(bytes / 1024 / 1024); }
@@ -33,6 +34,8 @@ export async function getSystemHealth() {
   const brevoApiKey = Boolean(process.env.BREVO_API_KEY);
   const brevoSender = Boolean(process.env.BREVO_SENDER_EMAIL);
   const newsletterDeliveryWebhook = Boolean(process.env.NEWSLETTER_DELIVERY_WEBHOOK_URL);
+  const adsenseClient = process.env.ADSENSE_CLIENT?.trim() || "";
+  const legal = getLegalOperator();
 
   return {
     database,
@@ -56,6 +59,8 @@ export async function getSystemHealth() {
       brevoApiKey,
       brevoSender,
       newsletterDeliveryMode: brevoApiKey && brevoSender ? "Brevo" : newsletterDeliveryWebhook ? "Webhook" : "Not connected",
+      adsenseConfigured: /^ca-pub-\d{10,20}$/.test(adsenseClient),
+      legalOperatorReady: legal.ready,
     },
   };
 }
