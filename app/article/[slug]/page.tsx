@@ -9,22 +9,23 @@ import { AdSlot } from "@/components/AdSlot";
 import { ArticleArtwork } from "@/components/ArticleArtwork";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { ArticleShare } from "@/components/ArticleShare";
+import { DEFAULT_SOCIAL_IMAGE, SITE_URL } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
-const SITE="https://kitsuwire.com";
+const SITE=SITE_URL;
 const sectionId=(heading:string)=>heading.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
 const absoluteUrl=(value:string)=>value.startsWith("http://")||value.startsWith("https://")?value:`${SITE}${value.startsWith("/")?value:`/${value}`}`;
 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
  const{slug}=await params;const article=await getArticle(slug);if(!article)return{};const url=`${SITE}/article/${article.slug}`;
- const image=article.featuredImage?{url:absoluteUrl(article.featuredImage.url),width:article.featuredImage.width,height:article.featuredImage.height,alt:article.featuredImage.altText??article.title}:undefined;
- return{title:article.seoTitle??article.title,description:article.seoDescription??article.excerpt,keywords:article.tags,authors:[{name:article.author??"KitsuWire Editorial"}],alternates:{canonical:url},openGraph:{title:article.seoTitle??article.title,description:article.seoDescription??article.excerpt,type:"article",url,siteName:"KitsuWire",publishedTime:article.publishedAt,modifiedTime:article.updatedAt,authors:[article.author??"KitsuWire Editorial"],tags:article.tags,images:image?[image]:undefined},twitter:{card:"summary_large_image",title:article.seoTitle??article.title,description:article.seoDescription??article.excerpt,images:image?[image.url]:undefined}};
+ const image=article.featuredImage?{url:absoluteUrl(article.featuredImage.url),width:article.featuredImage.width??1200,height:article.featuredImage.height??630,alt:article.featuredImage.altText??article.title}:{url:DEFAULT_SOCIAL_IMAGE,width:1200,height:630,alt:`${article.title} — KitsuWire`};
+ return{title:article.seoTitle??article.title,description:article.seoDescription??article.excerpt,keywords:article.tags,authors:[{name:article.author??"KitsuWire Editorial"}],alternates:{canonical:url},openGraph:{title:article.seoTitle??article.title,description:article.seoDescription??article.excerpt,type:"article",url,siteName:"KitsuWire",locale:"en_US",publishedTime:article.publishedAt,modifiedTime:article.updatedAt,authors:[article.author??"KitsuWire Editorial"],tags:article.tags,images:[image]},twitter:{card:"summary_large_image",title:article.seoTitle??article.title,description:article.seoDescription??article.excerpt,images:[image.url]},robots:{index:true,follow:true,googleBot:{index:true,follow:true,"max-image-preview":"large","max-snippet":-1,"max-video-preview":-1}}};
 }
 
 export default async function ArticlePage({params}:{params:Promise<{slug:string}>}){
  const{slug}=await params;const article=await getArticle(slug);if(!article)notFound();
- const related=await getRelatedArticles(article,4);const author=article.author??"KitsuWire Editorial";const url=`${SITE}/article/${article.slug}`;
- const articleSchema={"@context":"https://schema.org","@type":"Article",headline:article.title,description:article.seoDescription??article.excerpt,datePublished:article.publishedAt,dateModified:article.updatedAt??article.publishedAt,author:{"@type":"Organization",name:author},publisher:{"@type":"Organization",name:"KitsuWire",url:SITE},mainEntityOfPage:{"@type":"WebPage","@id":url},keywords:article.tags?.join(", "),articleSection:article.categoryLabel,image:article.featuredImage?absoluteUrl(article.featuredImage.url):undefined};
+ const related=await getRelatedArticles(article,4);const author=article.author??"KitsuWire Editorial";const url=`${SITE}/article/${article.slug}`;const schemaImage=article.featuredImage?absoluteUrl(article.featuredImage.url):DEFAULT_SOCIAL_IMAGE;
+ const articleSchema={"@context":"https://schema.org","@type":"Article",headline:article.title,description:article.seoDescription??article.excerpt,datePublished:article.publishedAt,dateModified:article.updatedAt??article.publishedAt,inLanguage:"en",isAccessibleForFree:true,author:{"@type":"Organization",name:author},publisher:{"@type":"Organization",name:"KitsuWire",url:SITE},mainEntityOfPage:{"@type":"WebPage","@id":url},keywords:article.tags?.join(", "),articleSection:article.categoryLabel,image:schemaImage};
  const breadcrumbSchema={"@context":"https://schema.org","@type":"BreadcrumbList",itemListElement:[{"@type":"ListItem",position:1,name:"Home",item:SITE},{"@type":"ListItem",position:2,name:article.categoryLabel,item:`${SITE}/category/${article.category}`},{"@type":"ListItem",position:3,name:article.title,item:url}]};
  const faqSchema=article.faq?.length?{"@context":"https://schema.org","@type":"FAQPage",mainEntity:article.faq.map(item=>({"@type":"Question",name:item.question,acceptedAnswer:{"@type":"Answer",text:item.answer}}))}:null;
  return <main><ReadingProgress/><SiteHeader/><article className="article-page shell">
