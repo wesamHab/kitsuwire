@@ -3,6 +3,7 @@
 import { ArticleStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { writeAdminAudit } from "@/lib/admin-audit";
 import { getAdminSession } from "@/lib/admin-auth";
 import { requireTrustedAdminMutation } from "@/lib/admin-security";
 import { db } from "@/lib/db";
@@ -86,12 +87,13 @@ export async function createArticleAction(formData: FormData) {
     sections: { create: sections }, faq: { create: faq }, sources: { create: sources },
   }});
   await db.articleRevision.create({ data: { articleId: article.id, note: "Created in admin", snapshot: { title, slug, status, scheduledAt, featuredImageId } } });
+  await writeAdminAudit(session, { action: "article.create", entityType: "Article", entityId: article.id, summary: `Created article: ${title}`, metadata: { slug, status } });
   revalidatePath("/admin"); revalidatePath("/admin/articles"); revalidatePath("/", "layout");
   redirect(`/admin/articles/${article.id}?saved=1`);
 }
 
 export async function updateArticleAction(formData: FormData) {
-  await requireAdmin();
+  const session = await requireAdmin();
   const id = text(formData, "id");
   const current = await db.article.findUnique({ where: { id } });
   if (!current) redirect("/admin/articles");
@@ -118,18 +120,20 @@ export async function updateArticleAction(formData: FormData) {
       revisions: { create: { note: "Updated in admin", snapshot: { title, slug, status, scheduledAt, featuredImageId, updatedAt: new Date().toISOString() } } },
     }});
   });
+  await writeAdminAudit(session, { action: "article.update", entityType: "Article", entityId: id, summary: `Updated article: ${title}`, metadata: { previousSlug: current.slug, slug, previousStatus: current.status, status } });
 
   revalidatePath("/admin"); revalidatePath("/admin/articles"); revalidatePath(`/admin/articles/${id}`); revalidatePath(`/article/${current.slug}`); revalidatePath(`/article/${slug}`); revalidatePath("/", "layout");
   redirect(`/admin/articles/${id}?saved=1`);
 }
 
 export async function deleteArticleAction(formData: FormData) {
-  await requireAdmin();
+  const session = await requireAdmin();
   const id = text(formData, "id");
   if (!id) redirect("/admin/articles");
-  const article = await db.article.findUnique({ where: { id }, select: { slug: true } });
+  const article = await db.article.findUnique({ where: { id }, select: { slug: true, title: true, status: true } });
   if (!article) redirect("/admin/articles");
   await db.article.delete({ where: { id } });
+  await writeAdminAudit(session, { action: "article.delete", entityType: "Article", entityId: id, summary: `Deleted article: ${article.title}`, metadata: { slug: article.slug, status: article.status } });
   revalidatePath("/admin"); revalidatePath("/admin/articles"); revalidatePath(`/article/${article.slug}`); revalidatePath("/", "layout");
   redirect("/admin/articles?deleted=1");
 }
