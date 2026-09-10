@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata={title:"About",description:"About KitsuWire and our editorial mission."};
+export const metadata=pageMetadata({title:"About",description:"About KitsuWire and our editorial mission.",path:"/about"});
 export default function About(){return <main><SiteHeader/><section className="info-page shell"><span className="kicker">ABOUT KITSUWIRE</span><h1>Making complex technology easier to understand.</h1><div className="info-copy"><p>KitsuWire is an independent digital publication covering artificial intelligence, technology, software and markets.</p><p>Our goal is simple: explain important technologies and trends clearly, without unnecessary complexity or hype. We publish practical explainers, guides and analysis for curious readers, developers, technology professionals and investors.</p><h2>What we cover</h2><p>From Kubernetes, Docker and cloud infrastructure to artificial intelligence, software development and the economic forces shaping technology, KitsuWire connects the technical story with the bigger picture.</p><h2>Our editorial approach</h2><p>We aim to separate signal from noise. Articles should help readers understand how something works, why it matters and where its limitations are. Content is reviewed and updated as the technologies and markets we cover evolve.</p></div></section><SiteFooter/></main>}
