@@ -4,6 +4,10 @@
     position: fixed !important;
     inset: 0 !important;
     z-index: 2147483600 !important;
+    background: rgba(3,7,10,.66) !important;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    touch-action: none;
   }
 
   .mobile-nav-drawer {
@@ -13,19 +17,37 @@
     bottom: 0 !important;
     left: auto !important;
     z-index: 2147483601 !important;
-    width: min(88vw, 390px) !important;
+    width: min(92vw, 390px) !important;
     height: 100dvh !important;
     max-height: 100dvh !important;
-    padding: 18px 20px max(18px, env(safe-area-inset-bottom)) !important;
+    padding: max(18px, env(safe-area-inset-top)) 20px max(18px, env(safe-area-inset-bottom)) !important;
     overflow-y: auto !important;
+    overflow-x: hidden !important;
     overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
     background: var(--theme-bg, #f6f6f2) !important;
     isolation: isolate;
+    box-shadow: -18px 0 50px rgba(0,0,0,.22) !important;
+  }
+
+  .mobile-nav-drawer:not(.is-open) {
+    pointer-events: none !important;
+  }
+
+  .mobile-nav-head {
+    min-height: 54px;
+  }
+
+  .mobile-nav-head button,
+  .mobile-nav-trigger {
+    min-width: 44px;
+    min-height: 44px;
+    touch-action: manipulation;
   }
 
   .mobile-nav-drawer nav {
     display: grid !important;
-    margin-top: 10px !important;
+    margin-top: 8px !important;
     flex: 0 0 auto;
   }
 
@@ -39,12 +61,36 @@
     font-size: clamp(18px, 5vw, 22px) !important;
     line-height: 1.15 !important;
     white-space: nowrap;
+    touch-action: manipulation;
+  }
+
+  .mobile-nav-drawer nav a.is-active {
+    color: #73d312;
+  }
+
+  .mobile-nav-drawer nav a.is-active::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    margin-right: 10px;
+    flex: 0 0 auto;
+  }
+
+  .mobile-nav-drawer nav a.is-active span {
+    margin-left: auto;
   }
 
   .mobile-nav-actions {
-    margin-top: 24px !important;
-    padding-top: 0 !important;
+    margin-top: auto !important;
+    padding-top: 24px !important;
     flex: 0 0 auto;
+  }
+
+  .mobile-nav-actions a {
+    min-height: 48px !important;
+    touch-action: manipulation;
   }
 
   .mobile-nav-drawer > p {
@@ -63,20 +109,46 @@
 
 @media (max-width: 580px) {
   .mobile-nav-drawer {
-    width: calc(100vw - 28px) !important;
-    max-width: 390px !important;
+    width: 100vw !important;
+    max-width: none !important;
+    border-left: 0 !important;
+    box-shadow: none !important;
+    padding-left: max(18px, env(safe-area-inset-left)) !important;
+    padding-right: max(18px, env(safe-area-inset-right)) !important;
   }
 
   .mobile-nav-head {
     position: sticky;
-    top: -18px;
+    top: calc(-1 * max(18px, env(safe-area-inset-top)));
     z-index: 2;
-    padding-top: 18px;
+    padding-top: max(18px, env(safe-area-inset-top));
     background: var(--theme-bg, #f6f6f2);
   }
 
   .mobile-nav-drawer nav a {
     min-height: 50px;
     font-size: 20px !important;
+  }
+
+  .mobile-nav-actions {
+    gap: 10px !important;
+  }
+}
+
+@media (max-height: 640px) and (max-width: 900px) {
+  .mobile-nav-drawer nav a {
+    min-height: 44px;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    font-size: 18px !important;
+  }
+
+  .mobile-nav-actions {
+    margin-top: 16px !important;
+    padding-top: 0 !important;
+  }
+
+  .mobile-nav-drawer > p {
+    margin-top: 10px !important;
   }
 }
