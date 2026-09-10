@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { getAllArticles } from "@/lib/articles";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ArticleArtwork } from "@/components/ArticleArtwork";
+import { pageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
-export const metadata:Metadata={title:"Guides",description:"Clear KitsuWire guides to AI, technology, software and markets."};
+export const metadata=pageMetadata({title:"Guides",description:"Clear KitsuWire guides to AI, technology, software and markets.",path:"/guides"});
 
 export default async function Guides(){
   const guides=(await getAllArticles()).filter(article=>/^(what|how|why|ci-cd|containers|microservices)/i.test(article.slug)).slice(0,16);
