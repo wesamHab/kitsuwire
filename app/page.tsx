@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { ArrowRight, BookOpenText, Boxes, Globe2, Zap, Cpu, Code2, ChartNoAxesCombined, Mail } from "lucide-react";
+import { ArrowRight, BookOpenText, Boxes, Globe2, Zap, Cpu, Code2, ChartNoAxesCombined, Mail, CalendarDays, Clock3 } from "lucide-react";
 import { getAllArticles, getFeaturedArticle } from "@/lib/articles";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { HeroSignal } from "@/components/HeroSignal";
 import { ArticleArtwork } from "@/components/ArticleArtwork";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
@@ -14,11 +15,11 @@ export default async function Home(){
   const latest=articles.filter(a=>a.slug!==featured.slug);
   const wire=latest.slice(0,4);
 
-  return <main className="reference-home">
+  return <main className="reference-home home-redesign">
     <SiteHeader/>
 
-    <section className="reference-hero shell">
-      <div className="reference-hero-copy">
+    <section className="reference-hero shell home-hero">
+      <div className="reference-hero-copy home-hero-copy">
         <span className="reference-eyebrow">TECH NEWS. CLEARER.</span>
         <h1>Understand what<br/><em>moves</em> the world.</h1>
         <p>KitsuWire delivers clear, in-depth insights on AI, technology, software and markets — without the noise.</p>
@@ -26,7 +27,7 @@ export default async function Home(){
           <Link className="reference-primary" href="#wire">Explore latest articles <ArrowRight size={17}/></Link>
           <Link className="reference-secondary" href="/about">About KitsuWire</Link>
         </div>
-        <div className="reference-stats">
+        <div className="reference-stats home-stats">
           <div><BookOpenText/><span><b>{articles.length}+</b><small>Articles</small></span></div>
           <div><Boxes/><span><b>4</b><small>Categories</small></span></div>
           <div><Globe2/><span><b>Global</b><small>Perspective</small></span></div>
@@ -36,7 +37,7 @@ export default async function Home(){
       <HeroSignal/>
     </section>
 
-    <section className="reference-section shell" id="wire">
+    <section className="reference-section shell home-wire" id="wire">
       <div className="reference-section-head">
         <div><h2>On the Wire</h2><p>The latest insights, handpicked for you.</p></div>
         <Link href="/articles">View all articles <ArrowRight size={15}/></Link>
@@ -48,13 +49,16 @@ export default async function Home(){
             <span className={`reference-category cat-${article.category}`}>{article.categoryLabel}</span>
             <h3>{article.title}</h3>
             <p>{article.excerpt}</p>
-            <div className="reference-meta"><span>{new Date(article.publishedAt).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span><span>{article.readingTime} read</span></div>
+            <div className="reference-meta">
+              <span><CalendarDays size={13}/>{new Date(article.publishedAt).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>
+              <span><Clock3 size={13}/>{article.readingTime} read</span>
+            </div>
           </div>
         </Link>)}
       </div>
     </section>
 
-    <section className="reference-section reference-categories shell">
+    <section className="reference-section reference-categories shell home-categories">
       <div className="reference-section-head"><div><h2>Explore by Category</h2><p>Dive deeper into the topics that matter.</p></div></div>
       <div className="reference-category-grid">
         <Link href="/category/ai" className="reference-category-card reference-cat-ai"><Cpu/><strong>AI</strong><span>Latest in artificial intelligence</span><i><ArrowRight/></i></Link>
@@ -64,23 +68,23 @@ export default async function Home(){
       </div>
     </section>
 
-    <section className="reference-feature shell">
+    <section className="reference-feature shell home-feature">
       <ArticleArtwork article={featured}/>
       <div className="reference-feature-copy">
         <span className="reference-featured-label">FEATURED</span>
         <h2>{featured.title}</h2>
         <p>{featured.excerpt}</p>
-        <div className="reference-meta"><span>{new Date(featured.publishedAt).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span><span>{featured.readingTime} read</span></div>
+        <div className="reference-meta"><span><CalendarDays size={13}/>{new Date(featured.publishedAt).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span><span><Clock3 size={13}/>{featured.readingTime} read</span></div>
       </div>
       <Link href={`/article/${featured.slug}`} className="reference-feature-arrow" aria-label={`Read ${featured.title}`}><ArrowRight/></Link>
     </section>
 
-    <section className="reference-newsletter shell" id="newsletter">
+    <section className="reference-newsletter shell home-newsletter" id="newsletter">
       <div className="reference-newsletter-icon"><Mail/></div>
       <div className="reference-newsletter-copy"><h2>Get the best tech insights, weekly.</h2><p>No spam. Just clear, valuable content.</p></div>
       <NewsletterSignup/>
     </section>
 
-    <footer className="reference-footer shell"><span>© {new Date().getFullYear()} KitsuWire</span><nav><Link href="/about">About</Link><Link href="/contact">Contact</Link><Link href="/privacy">Privacy</Link><Link href="/imprint">Imprint</Link></nav></footer>
+    <SiteFooter/>
   </main>
 }
