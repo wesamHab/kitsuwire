@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { writeAdminAudit } from "@/lib/admin-audit";
 import { createAdminSession, verifyPassword } from "@/lib/admin-auth";
 import {
   adminLoginRateLimitKey,
@@ -35,6 +36,7 @@ export async function POST(request: Request) {
 
   clearAdminLoginFailures(key);
   await createAdminSession(user.id);
+  await writeAdminAudit({ id: user.id, email: user.email }, { action: "auth.login", entityType: "User", entityId: user.id, summary: "Admin signed in" });
   const response = NextResponse.redirect(new URL("/admin", request.url), 303);
   response.headers.set("Cache-Control", "no-store");
   return response;
