@@ -25,6 +25,7 @@ services:
       target: dbtool
     environment:
       DATABASE_URL: postgresql://kitsuwire:${POSTGRES_PASSWORD}@db:5432/kitsuwire?schema=public
+      ANALYTICS_RETENTION_DAYS: ${ANALYTICS_RETENTION_DAYS:-180}
     depends_on:
       db:
         condition: service_healthy
@@ -54,7 +55,7 @@ services:
       BREVO_REPLY_TO_EMAIL: ${BREVO_REPLY_TO_EMAIL:-}
       NEWSLETTER_DELIVERY_WEBHOOK_URL: ${NEWSLETTER_DELIVERY_WEBHOOK_URL:-}
       NEWSLETTER_DELIVERY_WEBHOOK_SECRET: ${NEWSLETTER_DELIVERY_WEBHOOK_SECRET:-}
-      NEXT_PUBLIC_ADSENSE_CLIENT: ${NEXT_PUBLIC_ADSENSE_CLIENT:-}
+      ADSENSE_CLIENT: ${ADSENSE_CLIENT:-}
       ANALYTICS_RETENTION_DAYS: ${ANALYTICS_RETENTION_DAYS:-180}
     volumes:
       - kitsuwire_media_data:/app/data/uploads
