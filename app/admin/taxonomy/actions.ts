@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/admin-auth";
+import { requireTrustedAdminMutation } from "@/lib/admin-security";
 import { db } from "@/lib/db";
 
 function text(formData: FormData, key: string) {
@@ -16,6 +17,7 @@ function slugify(value: string) {
 async function requireAdmin() {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
+  await requireTrustedAdminMutation();
   return session;
 }
 
@@ -41,7 +43,7 @@ export async function createTagAction(formData: FormData) {
 
   const existing = await db.tag.findFirst({ where: { OR: [{ slug }, { name }] } });
   if (existing) redirect("/admin/taxonomy?error=duplicate-tag");
-  await db.tag.create({ data: { name, slug } });
+  await db.tag.create({ data: { name, slug } }).catch(() => redirect("/admin/taxonomy?error=duplicate-tag"));
   revalidatePath("/admin/taxonomy");
   redirect("/admin/taxonomy?saved=tag");
 }
@@ -52,7 +54,7 @@ export async function renameTagAction(formData: FormData) {
   const name = text(formData, "name");
   const slug = slugify(text(formData, "slug") || name);
   if (!id || !name || !slug) redirect("/admin/taxonomy?error=tag");
-  await db.tag.update({ where: { id }, data: { name, slug } });
+  await db.tag.update({ where: { id }, data: { name, slug } }).catch(() => redirect("/admin/taxonomy?error=duplicate-tag"));
   revalidatePath("/admin/taxonomy");
   revalidatePath("/", "layout");
   redirect("/admin/taxonomy?saved=tag");
