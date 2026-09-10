@@ -1,0 +1,199 @@
+/* Final public mobile QA layer. Keep this import after feature-specific styles. */
+@media (max-width: 600px) {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  main,
+  section,
+  article,
+  aside,
+  .shell,
+  .article-content,
+  .info-copy {
+    min-width: 0;
+  }
+
+  img,
+  video,
+  svg {
+    max-width: 100%;
+  }
+
+  h1,
+  h2,
+  h3,
+  p,
+  a,
+  code {
+    overflow-wrap: anywhere;
+  }
+
+  .category-hero {
+    padding-top: 54px;
+    padding-bottom: 38px;
+  }
+
+  .category-hero h1 {
+    font-size: clamp(44px, 14vw, 60px);
+    line-height: .9;
+    letter-spacing: -.065em;
+    margin: 18px 0 20px;
+  }
+
+  .category-hero p {
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 100%;
+  }
+
+  .category-list {
+    padding-top: 18px;
+    padding-bottom: 70px;
+  }
+
+  .category-story {
+    gap: 18px;
+    padding: 24px 0;
+  }
+
+  .category-story h2 {
+    font-size: clamp(25px, 8vw, 32px);
+    line-height: 1.08;
+    margin: 12px 0;
+  }
+
+  .category-story p {
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .category-story > .article-artwork {
+    width: 100%;
+    min-height: 190px;
+  }
+
+  .article-page {
+    padding-top: 28px;
+  }
+
+  .article-head {
+    padding: 44px 0 32px;
+  }
+
+  .article-head h1 {
+    font-size: clamp(38px, 11.5vw, 52px);
+    line-height: .98;
+    letter-spacing: -.055em;
+  }
+
+  .article-head > p {
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .article-byline {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .article-layout {
+    padding-top: 48px;
+    padding-bottom: 64px;
+  }
+
+  .article-content p {
+    font-size: 18px;
+    line-height: 1.75;
+  }
+
+  .article-callout {
+    padding: 26px 22px;
+  }
+
+  .article-callout h2 {
+    font-size: 28px;
+  }
+
+  .article-sources a {
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .site-search-form {
+    width: 100%;
+    margin-top: 24px;
+  }
+
+  .site-search-form input {
+    min-width: 0;
+    width: calc(100% - 40px);
+  }
+
+  .search-results > a {
+    flex-direction: column;
+    gap: 10px;
+    padding: 22px 0;
+  }
+
+  .search-results h2 {
+    font-size: 24px;
+    line-height: 1.12;
+  }
+
+  .info-page {
+    padding-top: 54px;
+    padding-bottom: 70px;
+  }
+
+  .info-page h1 {
+    font-size: clamp(40px, 12vw, 54px);
+    line-height: .96;
+  }
+
+  .info-copy h2 {
+    line-height: 1.15;
+  }
+
+  .notice-card {
+    padding: 22px;
+  }
+
+  .footer {
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .footer > div {
+    width: 100%;
+    row-gap: 12px;
+  }
+
+  .footer > span {
+    width: 100%;
+  }
+}
+
+@media (max-width: 360px) {
+  .shell {
+    width: calc(100% - 22px);
+  }
+
+  .reference-brand .brand-word {
+    font-size: 17px;
+  }
+
+  .category-hero h1 {
+    font-size: 43px;
+  }
+
+  .article-head h1 {
+    font-size: 38px;
+  }
+
+  .article-hero-art .article-artwork {
+    min-height: 230px;
+  }
+}
