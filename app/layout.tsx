@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { KitsuCursor } from "@/components/KitsuCursor";
 import { PrivacyConsent } from "@/components/PrivacyConsent";
@@ -85,12 +86,12 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const foxCursorEnabled = await getFoxCursorEnabled();
   return (
     <html lang="en" suppressHydrationWarning>
-      <head suppressHydrationWarning>
-        <script id="kitsuwire-theme-init" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: themeScript }} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
-      </head>
-      <body suppressHydrationWarning>{children}<PrivacyConsent/><AnalyticsTracker/><KitsuCursor enabled={foxCursorEnabled} /></body>
+      <body suppressHydrationWarning>
+        <Script id="kitsuwire-theme-init" strategy="beforeInteractive">{themeScript}</Script>
+        <script id="kitsuwire-website-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
+        <script id="kitsuwire-organization-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
+        {children}<PrivacyConsent/><AnalyticsTracker/><KitsuCursor enabled={foxCursorEnabled} />
+      </body>
     </html>
   );
 }
