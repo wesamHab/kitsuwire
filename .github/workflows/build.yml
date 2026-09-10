@@ -36,10 +36,13 @@ jobs:
           node-version: 22
 
       - name: Install production dependencies for audit
-        run: npm install --omit=dev --ignore-scripts
+        run: npm install --omit=dev --ignore-scripts --legacy-peer-deps
 
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
+
+      - name: Reset dependency tree
+        run: rm -rf node_modules package-lock.json
 
       - name: Install full build dependencies
         run: npm install
