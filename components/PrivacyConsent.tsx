@@ -91,7 +91,7 @@ export function PrivacyConsent() {
         <p>KitsuWire always uses the storage needed for core preferences and secure administration. Optional analytics and future advertising stay off until you choose otherwise.</p>
         {details ? <div className="privacy-options">
           <div><span><strong>Necessary & preferences</strong><small>Always active · security, theme, fox cursor and your privacy choice.</small></span><span className="privacy-required">Required</span></div>
-          <label><span><strong>Analytics</strong><small>Anonymous first-party page-view measurement. No tracking cookie or persistent visitor ID.</small></span><input type="checkbox" checked={analytics} onChange={event => setAnalytics(event.target.checked)}/></label>
+          <label><span><strong>Analytics</strong><small>First-party visitor and session IDs measure page views, sessions and returning visits only after consent. No account identity, IP address or browser fingerprint is stored in application analytics.</small></span><input type="checkbox" checked={analytics} onChange={event => setAnalytics(event.target.checked)}/></label>
           <label><span><strong>Advertising</strong><small>Reserved for consent-requiring advertising such as Google AdSense. No ad technology is loaded by this setting until KitsuWire enables it.</small></span><input type="checkbox" checked={advertising} onChange={event => setAdvertising(event.target.checked)}/></label>
         </div> : null}
         <div className="privacy-consent-actions">
