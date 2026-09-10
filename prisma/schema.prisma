@@ -217,10 +217,14 @@ model PageView {
   path         String
   articleSlug  String?
   referrerHost String?
+  visitorId    String?
+  sessionId    String?
   createdAt    DateTime @default(now())
 
   @@index([createdAt])
   @@index([articleSlug, createdAt])
   @@index([path, createdAt])
   @@index([referrerHost, createdAt])
+  @@index([visitorId, createdAt])
+  @@index([sessionId, createdAt])
 }
