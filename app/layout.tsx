@@ -11,6 +11,7 @@ import "./hero-polish.css";
 import "./editorial.css";
 import "./theme.css";
 import "./reference.css";
+import "./home-redesign.css";
 import "./article-pro.css";
 import "./utility.css";
 import "./admin.css";
@@ -88,7 +89,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const foxCursorEnabled = await getFoxCursorEnabled();
   const adsenseClient = process.env.ADSENSE_CLIENT?.trim() || null;
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <body suppressHydrationWarning>
         <Script id="kitsuwire-theme-init" strategy="beforeInteractive">{themeScript}</Script>
         <Script id="kitsuwire-website-schema" type="application/ld+json" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
