@@ -91,8 +91,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
         <Script id="kitsuwire-theme-init" strategy="beforeInteractive">{themeScript}</Script>
-        <script id="kitsuwire-website-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
-        <script id="kitsuwire-organization-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
+        <Script id="kitsuwire-website-schema" type="application/ld+json" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
+        <Script id="kitsuwire-organization-schema" type="application/ld+json" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
         {children}<PrivacyConsent/><AnalyticsTracker/><AdSenseLoader clientId={adsenseClient}/><KitsuCursor enabled={foxCursorEnabled} />
       </body>
     </html>
