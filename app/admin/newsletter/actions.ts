@@ -3,12 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/admin-auth";
+import { requireTrustedAdminMutation } from "@/lib/admin-security";
 import { db } from "@/lib/db";
 import { resendNewsletterConfirmation } from "@/lib/newsletter";
 
 async function requireAdmin() {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
+  await requireTrustedAdminMutation();
 }
 
 function idFrom(formData: FormData) { return String(formData.get("id") ?? "").trim(); }
