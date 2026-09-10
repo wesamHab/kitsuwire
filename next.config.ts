@@ -27,10 +27,20 @@ const securityHeaders = [
   { key: "X-DNS-Prefetch-Control", value: "off" },
 ];
 
+const privateAdminHeaders = [
+  { key: "Cache-Control", value: "private, no-store, max-age=0" },
+  { key: "Pragma", value: "no-cache" },
+  { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+];
+
 const nextConfig: NextConfig = {
   output: "standalone",
   async headers() {
-    return [{ source: "/(.*)", headers: securityHeaders }];
+    return [
+      { source: "/(.*)", headers: securityHeaders },
+      { source: "/admin/:path*", headers: privateAdminHeaders },
+      { source: "/api/admin/:path*", headers: privateAdminHeaders },
+    ];
   },
 };
 
