@@ -1,16 +1,13 @@
-import Image from "next/image";
+import { KitsuMascot } from "./KitsuMascot";
 
-export function HeroSignal(){
-  return <div className="hero-signal hero-art home-hero-scene" aria-hidden="true">
-    <div className="hero-image-frame">
-      <Image
-        className="hero-reference-image"
-        src="/kitsuwire-home-hero.webp"
-        alt=""
-        fill
-        priority
-        sizes="(max-width: 860px) 100vw, 56vw"
-      />
-    </div>
-  </div>;
-}
+export function HeroSignal(){return <div className="hero-signal hero-art" aria-hidden="true">
+  <div className="hero-signal-grid"/>
+  <div className="hero-sun"/>
+  <div className="hero-horizon hero-horizon-a"/>
+  <div className="hero-horizon hero-horizon-b"/>
+  <div className="hero-city"/>
+  <div className="hero-trajectory"/>
+  <KitsuMascot className="hero-mascot"/>
+  <div className="hero-art-note"><span>CURIOSITY</span><span>INSIGHT</span><strong>A BRIGHTER TOMORROW</strong></div>
+  <div className="hero-art-tags"><span>AI</span><span>TECH</span><span>SOFTWARE</span><span>MARKETS</span></div>
+</div>}
