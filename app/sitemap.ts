@@ -1,16 +1,29 @@
 import type { MetadataRoute } from "next";
-import { categories, getAllArticles } from "@/lib/articles";
+import { categories, getAllArticles, type Category } from "@/lib/articles";
 
 export const dynamic = "force-dynamic";
 
 export default async function sitemap():Promise<MetadataRoute.Sitemap>{
   const base="https://kitsuwire.com";
-  const now=new Date();
   const articles=await getAllArticles();
-  const staticRoutes=["","/articles","/guides","/about","/contact","/privacy","/imprint"];
+  const latestArticleDate=articles.length?new Date(Math.max(...articles.map(article=>new Date(article.updatedAt??article.publishedAt).getTime()))):undefined;
+  const categoryLatest=new Map<Category,Date>();
+  for(const category of categories){
+    const matching=articles.filter(article=>article.category===category);
+    if(matching.length)categoryLatest.set(category,new Date(Math.max(...matching.map(article=>new Date(article.updatedAt??article.publishedAt).getTime()))));
+  }
+  const editorialRoutes=[
+    {route:"",changeFrequency:"daily" as const,priority:1,lastModified:latestArticleDate},
+    {route:"/articles",changeFrequency:"daily" as const,priority:.8,lastModified:latestArticleDate},
+    {route:"/guides",changeFrequency:"weekly" as const,priority:.75,lastModified:latestArticleDate},
+    {route:"/about",changeFrequency:"monthly" as const,priority:.5},
+    {route:"/contact",changeFrequency:"monthly" as const,priority:.4},
+    {route:"/privacy",changeFrequency:"monthly" as const,priority:.3},
+    {route:"/imprint",changeFrequency:"monthly" as const,priority:.3},
+  ];
   return [
-    ...staticRoutes.map((route,index)=>({url:`${base}${route}`,lastModified:now,changeFrequency:(index===0?"daily":"monthly") as "daily"|"monthly",priority:index===0?1:.6})),
-    ...categories.map(category=>({url:`${base}/category/${category}`,lastModified:now,changeFrequency:"daily" as const,priority:.8})),
+    ...editorialRoutes.map(item=>({url:`${base}${item.route}`,changeFrequency:item.changeFrequency,priority:item.priority,...(item.lastModified?{lastModified:item.lastModified}:{})})),
+    ...categories.map(category=>({url:`${base}/category/${category}`,lastModified:categoryLatest.get(category),changeFrequency:"daily" as const,priority:.8})),
     ...articles.map(article=>({url:`${base}/article/${article.slug}`,lastModified:new Date(article.updatedAt??article.publishedAt),changeFrequency:"weekly" as const,priority:article.featured?.9:.7}))
   ];
 }
