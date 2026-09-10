@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-export const metadata:Metadata={title:"Contact",description:"Contact KitsuWire."};
+import { pageMetadata } from "@/lib/seo";
+export const metadata=pageMetadata({title:"Contact",description:"Contact KitsuWire.",path:"/contact"});
 export default function Contact(){return <main><SiteHeader/><section className="info-page shell"><span className="kicker">CONTACT</span><h1>Talk to KitsuWire.</h1><div className="info-copy"><p>Questions, corrections, story ideas or business inquiries are welcome.</p><div className="notice-card"><span>CONTACT DETAILS</span><h2>Contact channel coming before launch.</h2><p>We will publish the official KitsuWire contact email here before the website goes live. We do not publish personal contact information without explicit approval.</p></div><h2>Editorial corrections</h2><p>If you notice a factual error in a KitsuWire article, please include the article title, the relevant passage and a reliable source supporting the correction when contacting us.</p></div></section><SiteFooter/></main>}
