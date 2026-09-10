@@ -4,6 +4,7 @@ import { ArticleStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/admin-auth";
+import { requireTrustedAdminMutation } from "@/lib/admin-security";
 import { db } from "@/lib/db";
 
 const validStatuses = new Set(Object.values(ArticleStatus));
@@ -31,6 +32,7 @@ type SourceInput = { label?: string; url?: string };
 async function requireAdmin() {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
+  await requireTrustedAdminMutation();
   return session;
 }
 
@@ -101,6 +103,7 @@ export async function updateArticleAction(formData: FormData) {
   const featuredImageId = await resolveFeaturedImageId(text(formData, "featuredImageId"));
   const { sections, faq, sources } = structured(formData);
   const scheduledAt = status === ArticleStatus.SCHEDULED ? parseDate(text(formData, "scheduledAt"), text(formData, "timezoneOffset")) : null;
+  if (status === ArticleStatus.SCHEDULED && !scheduledAt) redirect(`/admin/articles/${id}?error=schedule`);
   const publishedAt = status === ArticleStatus.PUBLISHED ? (current.publishedAt ?? new Date()) : current.publishedAt;
 
   await db.$transaction(async tx => {
