@@ -15,6 +15,9 @@ fi
 echo "[KitsuWire] Pruning expired analytics events..."
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" run --rm migrate node scripts/prune-analytics.mjs
 
+echo "[KitsuWire] Pruning expired admin audit events..."
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" run --rm migrate node scripts/prune-audit-logs.mjs
+
 echo "[KitsuWire] Running backup..."
 ENV_FILE="$ENV_FILE" COMPOSE_FILE="$COMPOSE_FILE" "$ROOT_DIR/scripts/backup-production.sh"
 
