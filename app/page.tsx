@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, BookOpenText, Boxes, Globe2, Zap, Cpu, Code2, ChartNoAxesCombined, Mail } from "lucide-react";
 import { getAllArticles, getFeaturedArticle } from "@/lib/articles";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { HeroSignal } from "@/components/HeroSignal";
 import { ArticleArtwork } from "@/components/ArticleArtwork";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
@@ -81,6 +82,6 @@ export default async function Home(){
       <NewsletterSignup/>
     </section>
 
-    <footer className="reference-footer shell"><span>© {new Date().getFullYear()} KitsuWire</span><nav><Link href="/about">About</Link><Link href="/contact">Contact</Link><Link href="/privacy">Privacy</Link><Link href="/imprint">Imprint</Link></nav></footer>
+    <SiteFooter/>
   </main>
 }
