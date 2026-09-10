@@ -36,6 +36,8 @@ export async function POST(request: Request) {
           filename: (upload.name || saved.storedName).slice(0, 255),
           url: saved.url,
           altText: altText || null,
+          width: saved.width,
+          height: saved.height,
           fileSize: saved.fileSize,
         },
       });
@@ -45,13 +47,13 @@ export async function POST(request: Request) {
       throw error;
     }
 
-    await writeAdminAudit(session, { action: "media.upload", entityType: "Media", entityId: media.id, summary: `Uploaded media: ${media.filename}`, metadata: { kind: media.kind, fileSize: media.fileSize ?? undefined } });
+    await writeAdminAudit(session, { action: "media.upload", entityType: "Media", entityId: media.id, summary: `Uploaded media: ${media.filename}`, metadata: { kind: media.kind, fileSize: media.fileSize ?? undefined, width: media.width ?? undefined, height: media.height ?? undefined } });
     storedUrl = null;
     return redirectTo(request, "?uploaded=1");
   } catch (error) {
     if (storedUrl) await deleteStoredMedia(storedUrl).catch(() => undefined);
     const code = error instanceof Error ? error.message : "upload";
-    const allowed = new Set(["unsupported_type", "invalid_size", "invalid_image"]);
+    const allowed = new Set(["unsupported_type", "invalid_size", "invalid_image", "image_dimensions"]);
     return redirectTo(request, `?error=${allowed.has(code) ? code : "upload"}`);
   }
 }
