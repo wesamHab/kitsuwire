@@ -110,6 +110,32 @@ export const getAllArticles = cache(async (): Promise<Article[]> => {
   return records.map(toArticle).sort((a,b) => b.publishedAt.localeCompare(a.publishedAt));
 });
 
+export const searchArticles = cache(async (rawTerm: string, limit = 50): Promise<Article[]> => {
+  const term = rawTerm.trim().slice(0, 120);
+  if (!term) return [];
+  const records = await db.article.findMany({
+    where: {
+      AND: [
+        publicWhere(),
+        {
+          OR: [
+            { title: { contains: term, mode: "insensitive" } },
+            { excerpt: { contains: term, mode: "insensitive" } },
+            { seoTitle: { contains: term, mode: "insensitive" } },
+            { seoDescription: { contains: term, mode: "insensitive" } },
+            { category: { is: { label: { contains: term, mode: "insensitive" } } } },
+            { tags: { some: { name: { contains: term, mode: "insensitive" } } } },
+          ],
+        },
+      ],
+    },
+    include: articleInclude,
+    orderBy: [{ featured: "desc" }, { publishedAt: "desc" }, { scheduledAt: "desc" }],
+    take: Math.min(Math.max(limit, 1), 100),
+  });
+  return records.map(toArticle);
+});
+
 export const getArticle = cache(async (slug: string): Promise<Article | undefined> => {
   const record = await db.article.findFirst({ where: { AND: [publicWhere(), { slug }] }, include: articleInclude });
   return record ? toArticle(record) : undefined;
