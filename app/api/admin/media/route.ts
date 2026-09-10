@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { writeAdminAudit } from "@/lib/admin-audit";
 import { getAdminSession } from "@/lib/admin-auth";
 import { isTrustedAdminRequest } from "@/lib/admin-security";
 import { db } from "@/lib/db";
@@ -27,8 +28,9 @@ export async function POST(request: Request) {
 
     const saved = await saveImageUpload(upload);
     storedUrl = saved.url;
+    let media;
     try {
-      await db.media.create({
+      media = await db.media.create({
         data: {
           kind: "IMAGE",
           filename: (upload.name || saved.storedName).slice(0, 255),
@@ -43,6 +45,8 @@ export async function POST(request: Request) {
       throw error;
     }
 
+    await writeAdminAudit(session, { action: "media.upload", entityType: "Media", entityId: media.id, summary: `Uploaded media: ${media.filename}`, metadata: { kind: media.kind, fileSize: media.fileSize ?? undefined } });
+    storedUrl = null;
     return redirectTo(request, "?uploaded=1");
   } catch (error) {
     if (storedUrl) await deleteStoredMedia(storedUrl).catch(() => undefined);
