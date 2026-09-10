@@ -38,6 +38,24 @@ model User {
   role         UserRole @default(AUTHOR)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  auditLogs    AdminAuditLog[]
+}
+
+model AdminAuditLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  actorEmail  String
+  action      String
+  entityType  String?
+  entityId    String?
+  summary     String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([action, createdAt])
+  @@index([userId, createdAt])
 }
 
 model SiteSetting {
