@@ -87,7 +87,7 @@ export function MobileNav() {
   return <>
     <button ref={triggerRef} type="button" className="mobile-nav-trigger" aria-label={open ? "Close navigation" : "Open navigation"} aria-expanded={open} aria-controls="mobile-navigation" onClick={() => open ? close(false) : setOpen(true)}><Menu size={20}/></button>
     <div className={`mobile-nav-overlay${open ? " is-open" : ""}`} aria-hidden="true" onClick={() => close()} />
-    <aside ref={drawerRef} id="mobile-navigation" className={`mobile-nav-drawer${open ? " is-open" : ""}`} role="dialog" aria-modal={open ? "true" : undefined} aria-label="Mobile navigation" aria-hidden={!open} {...(!open ? { inert: "" } : {})}>
+    <aside ref={drawerRef} id="mobile-navigation" className={`mobile-nav-drawer${open ? " is-open" : ""}`} role="dialog" aria-modal={open ? true : undefined} aria-label="Mobile navigation" aria-hidden={!open} inert={!open}>
       <div className="mobile-nav-head"><span>Explore KitsuWire</span><button ref={closeRef} type="button" aria-label="Close navigation" onClick={() => close()}><X size={20}/></button></div>
       <nav aria-label="Primary navigation">{links.map(([label, href]) => <Link className={isActive(href) ? "is-active" : undefined} aria-current={isActive(href) ? "page" : undefined} key={href} href={href} onClick={() => close(false)}>{label}<span>→</span></Link>)}</nav>
       <div className="mobile-nav-actions"><Link href="/search" onClick={() => close(false)}><Search size={17}/> Search KitsuWire</Link><Link className="mobile-nav-subscribe" href="/#newsletter" onClick={() => close(false)}><Mail size={17}/> Subscribe</Link></div>
