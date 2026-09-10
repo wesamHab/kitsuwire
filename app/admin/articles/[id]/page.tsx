@@ -15,11 +15,11 @@ function jsonLines(value: unknown) {
   return Array.isArray(value) ? value.filter(item => typeof item === "string").join("\n") : "";
 }
 
-export default async function EditArticlePage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string }> }) {
+export default async function EditArticlePage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string; error?: string }> }) {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
   const { id } = await params;
-  const { saved } = await searchParams;
+  const { saved, error } = await searchParams;
   const [article, categories, media] = await Promise.all([
     db.article.findUnique({ where: { id }, include: { category: true, tags: true, featuredImage: true, sections: { orderBy: { position: "asc" } }, faq: { orderBy: { position: "asc" } }, sources: { orderBy: { position: "asc" } } } }),
     db.category.findMany({ orderBy: { title: "asc" } }),
@@ -39,6 +39,7 @@ export default async function EditArticlePage({ params, searchParams }: { params
   return <main className="admin-subpage admin-editor-page">
     <header><div><Link href="/admin/articles">← Articles</Link><p className="admin-kicker">CONTENT / EDIT</p><h1>Edit article</h1></div><Link className="admin-outline-btn" href={previewHref} target="_blank">{isPublic ? "View public page" : "Preview draft"}</Link></header>
     {saved ? <p className="admin-success">Changes saved successfully.</p> : null}
+    {error === "schedule" ? <p className="admin-error">Choose a valid publication date and time before saving an article as SCHEDULED.</p> : null}
     <form action={updateArticleAction} className="admin-editor-form">
       <input type="hidden" name="id" value={article.id}/>
       <section className="admin-editor-main admin-panel">
