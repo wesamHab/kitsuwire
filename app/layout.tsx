@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { AdSenseLoader } from "@/components/AdSenseLoader";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { KitsuCursor } from "@/components/KitsuCursor";
 import { PrivacyConsent } from "@/components/PrivacyConsent";
@@ -84,13 +85,14 @@ const organizationSchema = {
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const foxCursorEnabled = await getFoxCursorEnabled();
+  const adsenseClient = process.env.ADSENSE_CLIENT?.trim() || null;
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
         <Script id="kitsuwire-theme-init" strategy="beforeInteractive">{themeScript}</Script>
         <script id="kitsuwire-website-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
         <script id="kitsuwire-organization-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
-        {children}<PrivacyConsent/><AnalyticsTracker/><KitsuCursor enabled={foxCursorEnabled} />
+        {children}<PrivacyConsent/><AnalyticsTracker/><AdSenseLoader clientId={adsenseClient}/><KitsuCursor enabled={foxCursorEnabled} />
       </body>
     </html>
   );
