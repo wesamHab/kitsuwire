@@ -18,6 +18,7 @@ import "./taxonomy-admin.css";
 import "./system-admin.css";
 import "./newsletter-admin.css";
 import "./privacy-consent.css";
+import "./mobile-nav-fix.css";
 
 const SITE = "https://kitsuwire.com";
 const SOCIAL_IMAGE = `${SITE}/opengraph-image`;
