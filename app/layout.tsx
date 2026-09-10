@@ -23,6 +23,8 @@ import "./privacy-consent.css";
 import "./mobile-nav-fix.css";
 import "./mobile-qa.css";
 
+export const dynamic = "force-dynamic";
+
 const SITE = "https://kitsuwire.com";
 const SOCIAL_IMAGE = `${SITE}/opengraph-image`;
 
