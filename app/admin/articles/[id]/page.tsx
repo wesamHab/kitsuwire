@@ -8,6 +8,7 @@ import { DeleteArticleButton } from "./DeleteArticleButton";
 import { StructuredContentEditor } from "../StructuredContentEditor";
 import { ScheduleFields } from "../ScheduleFields";
 import { FeaturedImagePicker } from "../FeaturedImagePicker";
+import { SeoAssistant } from "../SeoAssistant";
 
 export const metadata = { title: "Edit Article", robots: { index: false, follow: false } };
 
@@ -55,6 +56,7 @@ export default async function EditArticlePage({ params, searchParams }: { params
         <StructuredContentEditor initialSections={initialSections} initialFaq={initialFaq} initialSources={initialSources}/>
       </section>
       <aside className="admin-editor-side admin-panel">
+        <SeoAssistant/>
         <div className="admin-seo-editor-card">
           <div className="admin-seo-editor-card-head"><div><p className="admin-kicker">SEO SCORE</p><strong>{audit.grade}</strong></div><span className={`admin-seo-editor-card-score ${scoreClass}`}>{audit.score}</span></div>
           {audit.issues.length ? <ul>{audit.issues.slice(0,4).map(issue => <li key={issue.code}>{issue.label}</li>)}</ul> : <small>No SEO issues detected.</small>}
