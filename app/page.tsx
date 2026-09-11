@@ -6,8 +6,10 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { HeroSignal } from "@/components/HeroSignal";
 import { ArticleArtwork } from "@/components/ArticleArtwork";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
+import { pageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+export const metadata=pageMetadata({title:"KitsuWire — Tech News. Clearer.",description:"Clear, in-depth insights on AI, technology, software and markets — without the noise.",path:"/"});
 
 export default async function Home(){
   const [articles,featured]=await Promise.all([getAllArticles(),getFeaturedArticle()]);
