@@ -43,6 +43,7 @@ export default async function RootLayout({children}:{children:React.ReactNode}){
   const foxCursorEnabled=await getFoxCursorEnabled();
   const rawAdsenseClient=process.env.ADSENSE_CLIENT?.trim()||"";
   const adsenseClient=ADSENSE_CLIENT_RE.test(rawAdsenseClient)?rawAdsenseClient:"";
+  const googleAdsManaged=Boolean(adsenseClient);
   const websiteJsonLd={"@context":"https://schema.org","@type":"WebSite",name:"KitsuWire",url:SITE,potentialAction:{"@type":"SearchAction",target:`${SITE}/search?q={search_term_string}`,"query-input":"required name=search_term_string"}};
   const organizationJsonLd={"@context":"https://schema.org","@type":"Organization",name:"KitsuWire",url:SITE,logo:`${SITE}/opengraph-image`};
   return <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
@@ -57,7 +58,7 @@ export default async function RootLayout({children}:{children:React.ReactNode}){
       <KitsuCursor enabled={foxCursorEnabled}/>
       <AnalyticsTracker/>
       {children}
-      <PrivacyConsent/>
+      <PrivacyConsent googleAdsManaged={googleAdsManaged}/>
     </body>
   </html>;
 }
