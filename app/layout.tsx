@@ -27,11 +27,17 @@ export const dynamic = "force-dynamic";
 
 const SITE = "https://kitsuwire.com";
 const SOCIAL_IMAGE = `${SITE}/opengraph-image`;
+const LOGO = `${SITE}/kitsuwire-mark.svg`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
   title: { default: "KitsuWire — Tech News. Clearer.", template: "%s | KitsuWire" },
   description: "Clear, in-depth insights on AI, technology, software, and markets.",
+  applicationName: "KitsuWire",
+  creator: "KitsuWire Editorial",
+  publisher: "KitsuWire",
+  category: "Technology",
+  icons: { icon: "/kitsuwire-mark.svg", shortcut: "/kitsuwire-mark.svg" },
   openGraph: { type: "website", siteName: "KitsuWire", url: SITE, title: "KitsuWire — Tech News. Clearer.", description: "Clear, in-depth insights on AI, technology, software, and markets.", images: [{ url: SOCIAL_IMAGE, width: 1200, height: 630, alt: "KitsuWire" }] },
   twitter: { card: "summary_large_image", title: "KitsuWire — Tech News. Clearer.", description: "Clear, in-depth insights on AI, technology, software, and markets.", images: [SOCIAL_IMAGE] },
 };
@@ -44,8 +50,10 @@ export default async function RootLayout({children}:{children:React.ReactNode}){
   const rawAdsenseClient=process.env.ADSENSE_CLIENT?.trim()||"";
   const adsenseClient=ADSENSE_CLIENT_RE.test(rawAdsenseClient)?rawAdsenseClient:"";
   const googleAdsManaged=Boolean(adsenseClient);
-  const websiteJsonLd={"@context":"https://schema.org","@type":"WebSite",name:"KitsuWire",url:SITE,potentialAction:{"@type":"SearchAction",target:`${SITE}/search?q={search_term_string}`,"query-input":"required name=search_term_string"}};
-  const organizationJsonLd={"@context":"https://schema.org","@type":"Organization",name:"KitsuWire",url:SITE,logo:`${SITE}/opengraph-image`};
+  const organizationId=`${SITE}/#organization`;
+  const websiteId=`${SITE}/#website`;
+  const organizationJsonLd={"@context":"https://schema.org","@type":"Organization","@id":organizationId,name:"KitsuWire",url:SITE,description:"Independent explainers and analysis across AI, technology, software and markets.",logo:{"@type":"ImageObject",url:LOGO},image:SOCIAL_IMAGE};
+  const websiteJsonLd={"@context":"https://schema.org","@type":"WebSite","@id":websiteId,name:"KitsuWire",alternateName:"KitsuWire Tech News",url:SITE,inLanguage:"en",publisher:{"@id":organizationId}};
   return <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
     <head>
       {adsenseClient?<meta name="google-adsense-account" content={adsenseClient}/>:null}
