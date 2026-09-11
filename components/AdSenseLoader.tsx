@@ -1,32 +1,14 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect, useState } from "react";
-import { PRIVACY_CHANGE_EVENT, PRIVACY_STORAGE_KEY, type PrivacyPreferences } from "@/components/PrivacyConsent";
-
-function advertisingAllowed() {
-  try {
-    const raw = window.localStorage.getItem(PRIVACY_STORAGE_KEY);
-    if (!raw) return false;
-    const parsed = JSON.parse(raw) as Partial<PrivacyPreferences>;
-    return parsed.version === 1 && parsed.advertising === true;
-  } catch {
-    return false;
-  }
-}
 
 export function AdSenseLoader({ clientId }: { clientId?: string | null }) {
   const validClient = typeof clientId === "string" && /^ca-pub-\d{10,20}$/.test(clientId.trim()) ? clientId.trim() : null;
-  const [allowed, setAllowed] = useState(false);
 
-  useEffect(() => {
-    setAllowed(advertisingAllowed());
-    const handleChange = () => setAllowed(advertisingAllowed());
-    window.addEventListener(PRIVACY_CHANGE_EVENT, handleChange);
-    return () => window.removeEventListener(PRIVACY_CHANGE_EVENT, handleChange);
-  }, []);
-
-  if (!validClient || !allowed) return null;
+  // The AdSense script must be available so Google's certified CMP can render
+  // and manage EEA/UK/CH advertising consent. KitsuWire's own privacy control
+  // remains responsible only for first-party analytics when AdSense is active.
+  if (!validClient) return null;
 
   return <Script
     id="kitsuwire-adsense"
