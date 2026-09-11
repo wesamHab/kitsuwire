@@ -14,6 +14,7 @@ import "./reference.css";
 import "./article-pro.css";
 import "./utility.css";
 import "./admin.css";
+import "./seo-assistant.css";
 import "./media.css";
 import "./seo-admin.css";
 import "./taxonomy-admin.css";
