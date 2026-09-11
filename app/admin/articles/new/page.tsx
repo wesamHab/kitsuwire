@@ -6,6 +6,7 @@ import { createArticleAction } from "../actions";
 import { StructuredContentEditor } from "../StructuredContentEditor";
 import { ScheduleFields } from "../ScheduleFields";
 import { FeaturedImagePicker } from "../FeaturedImagePicker";
+import { SeoAssistant } from "../SeoAssistant";
 
 export const metadata = { title: "New Article", robots: { index: false, follow: false } };
 
@@ -37,6 +38,7 @@ export default async function NewArticlePage({ searchParams }: { searchParams: P
         <StructuredContentEditor/>
       </section>
       <aside className="admin-editor-side admin-panel">
+        <SeoAssistant/>
         <label>Status<select name="status" defaultValue="DRAFT"><option>IDEA</option><option>DRAFT</option><option>REVIEW</option><option>APPROVED</option><option>SCHEDULED</option><option>PUBLISHED</option><option>ARCHIVED</option></select></label>
         <label>Schedule publication<ScheduleFields/><small>Required when status is SCHEDULED.</small></label>
         <label>Category<select name="categoryId" required>{categories.map(category=><option value={category.id} key={category.id}>{category.title}</option>)}</select></label>
